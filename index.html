@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#070b17" />
+<title>Quiz Show Pro — Cerdas Cermat Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="stage-frame" id="stage-frame">
+  <div class="stage" id="stage">
+
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🎯</div>
+        <div class="brand-text">
+          <h1>QUIZ SHOW <span>PRO</span></h1>
+          <p>Cerdas Cermat Interaktif · Mode Misteri</p>
+        </div>
+      </div>
+
+      <div class="topbar-stats">
+        <div class="stat-chip"><span>Soal Tersisa</span><b id="chip-remaining">30</b></div>
+        <div class="stat-chip"><span>Soal Selesai</span><b id="chip-done">0</b></div>
+        <div class="stat-chip gold"><span>Bank Soal</span><b id="chip-bank">30 soal</b></div>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn ghost" id="btn-import">📥 Bank Soal</button>
+        <button class="btn ghost" id="btn-history">📜 Riwayat</button>
+        <button class="btn ghost" id="btn-settings">⚙️ Pengaturan</button>
+        <button class="btn ghost" id="btn-fullscreen">⛶ Fullscreen</button>
+        <button class="btn gold" id="btn-scoreboard-top">🏆 Scoreboard</button>
+      </div>
+    </header>
+
+    <!-- ============ MAIN ROW ============ -->
+    <main class="stage-main">
+
+      <!-- BOARD -->
+      <section class="panel board-panel">
+        <div class="panel-head">
+          <h2>📦 PAPAN SOAL <small>· pilih kotak yang masih tersedia</small></h2>
+          <button class="btn small" id="btn-shuffle">🔀 Acak Posisi</button>
+        </div>
+        <div class="board-grid" id="board-grid"></div>
+        <div class="board-locked hidden" id="board-locked">
+          🔒 Bank soal kosong. Impor file <b>.txt</b> atau tambahkan soal lewat menu <b>📥 Bank Soal</b> untuk memulai permainan.
+        </div>
+        <div class="board-legend">
+          <span><i class="dot easy"></i> Mudah · 10</span>
+          <span><i class="dot hard"></i> Sulit · 20</span>
+          <span><i class="dot vhard"></i> Sangat Sulit · 30</span>
+          <span class="muted">Warna &amp; ikon muncul setelah soal selesai dimainkan</span>
+        </div>
+      </section>
+
+      <!-- MODERATOR -->
+      <section class="panel moderator-panel">
+        <div class="mod-head">
+          <h2>🎧 PANEL MODERATOR</h2>
+          <div class="turn-info" id="turn-info">Pilih peserta aktif, lalu klik salah satu kotak soal.</div>
+        </div>
+
+        <div class="mod-grid">
+
+          <!-- TIMER -->
+          <div class="mod-card timer-card">
+            <div class="card-title">⏱️ TIMER</div>
+            <div class="timer-wrap t-green" id="timer-wrap">
+              <svg viewBox="0 0 120 120" class="timer-svg">
+                <circle class="timer-track" cx="60" cy="60" r="52"></circle>
+                <circle class="timer-progress" id="timer-progress" cx="60" cy="60" r="52"></circle>
+              </svg>
+              <div class="timer-text"><b id="timer-num">30</b><span>detik</span></div>
+            </div>
+
+            <div class="timer-ctrls">
+              <button class="tbtn" id="t-start" title="Mulai">▶</button>
+              <button class="tbtn" id="t-pause" title="Pause">⏸</button>
+              <button class="tbtn" id="t-stop" title="Stop">⏹</button>
+              <button class="tbtn" id="t-reset" title="Reset">↺</button>
+            </div>
+
+            <div class="timer-extra">
+              <label class="field">
+                <span>Durasi</span>
+                <select id="timer-duration">
+                  <option value="15">15 detik</option>
+                  <option value="30" selected>30 detik</option>
+                  <option value="45">45 detik</option>
+                  <option value="60">60 detik</option>
+                  <option value="custom">Custom…</option>
+                </select>
+              </label>
+              <input type="number" id="timer-custom" class="hidden" min="5" max="600" placeholder="detik" />
+              <div class="bonus-btns">
+                <span>Tambah waktu:</span>
+                <button class="tbtn sm" data-bonus="5">+5</button>
+                <button class="tbtn sm" data-bonus="10">+10</button>
+                <button class="tbtn sm" data-bonus="15">+15</button>
+                <button class="tbtn sm" data-bonus="30">+30</button>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="timer-enabled" checked />
+                <span>Timer aktif</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- QUESTION -->
+          <div class="mod-card question-card">
+            <div class="card-title">❓ SOAL AKTIF</div>
+            <div class="q-head">
+              <span class="chip cat" id="q-cat">Kategori: –</span>
+              <span class="chip pts" id="q-pts">Nilai: –</span>
+              <span class="chip num" id="q-num">Soal #–</span>
+            </div>
+            <div class="q-body" id="q-body">
+              <div class="q-cover" id="q-cover"><span>🙈</span><p>Soal disembunyikan</p></div>
+              <p class="q-text" id="q-text">Belum ada soal yang dibuka.</p>
+              <div class="q-answer-wrap hidden" id="answer-wrap">
+                <span class="ans-label">JAWABAN</span>
+                <p id="q-answer">—</p>
+              </div>
+            </div>
+            <div class="q-actions">
+              <div class="q-actions-row">
+                <button class="btn small" id="btn-show-q">👁 Tampilkan Soal</button>
+                <button class="btn small" id="btn-hide-q">🙈 Sembunyikan Soal</button>
+                <button class="btn small" id="btn-show-a">💡 Tampilkan Jawaban</button>
+              </div>
+              <div class="judge-btns">
+                <button class="btn correct big" id="btn-correct">✔ BENAR</button>
+                <button class="btn wrong big" id="btn-wrong">✘ SALAH</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOOLS -->
+          <div class="mod-card tools-card" id="tools-card">
+            <div class="card-title">
+              <span class="ct-text">🛠️ KONTROL</span>
+              <button class="mini-toggle" id="toggle-tools" type="button" title="Perkecil panel">▸</button>
+            </div>
+            <div class="tools-body">
+              <button class="btn block" id="btn-shuffle2">🔀 Acak Posisi Kotak</button>
+              <button class="btn block" id="btn-history2">📜 Riwayat Permainan</button>
+              <button class="btn block" id="btn-import2">📥 Ganti Bank Soal</button>
+              <button class="btn block" id="btn-settings2">⚙️ Pengaturan Timer</button>
+              <button class="btn block" id="btn-fullscreen2">⛶ Mode Fullscreen</button>
+              <button class="btn block danger" id="btn-reset-game">🔄 Reset Permainan</button>
+              <div class="hint">
+                <b>Tips:</b> Klik kartu peserta untuk menjadikannya peserta aktif. Tombol <kbd>B</kbd> = Benar, <kbd>S</kbd> = Salah, <kbd>F</kbd> = Fullscreen.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ BOTTOM ROW ============ -->
+    <footer class="stage-bottom">
+      <section class="panel players-panel">
+        <div class="panel-head">
+          <h2>👥 PESERTA <small id="p-count">0</small></h2>
+          <form class="add-form" id="add-form" autocomplete="off">
+            <input type="text" id="add-name" placeholder="Nama peserta baru…" maxlength="24" />
+            <button class="btn gold small" type="submit">＋ Tambah</button>
+          </form>
+        </div>
+        <div class="participant-list" id="participant-list"></div>
+      </section>
+
+      <section class="panel mini-panel" id="mini-panel">
+        <div class="panel-head">
+          <h2>🏅 TOP 5</h2>
+          <button class="mini-toggle" id="toggle-mini" type="button" title="Perkecil panel">▸</button>
+        </div>
+        <div class="mini-board" id="mini-board"></div>
+      </section>
+    </footer>
+
+    <!-- ============ FLOATING SCOREBOARD ============ -->
+    <button class="fab" id="fab-scoreboard">🏆 Scoreboard</button>
+
+    <!-- ============ POPUP BENAR / SALAH ============ -->
+    <div class="judge-popup" id="judge-popup" aria-hidden="true">
+      <div class="jp-card">
+        <div class="jp-ring"></div>
+        <div class="jp-icon" id="jp-icon">✔</div>
+        <div class="jp-title" id="jp-title">BENAR!</div>
+        <div class="jp-sub" id="jp-sub">—</div>
+        <div class="jp-pts" id="jp-pts">+10</div>
+      </div>
+    </div>
+
+    <!-- ============ MODALS ============ -->
+    <div class="modal" id="modal-mode">
+      <div class="modal-backdrop" data-close="modal-mode"></div>
+      <div class="modal-card">
+        <h3>🎲 Pilih Mekanisme Jawaban</h3>
+        <p class="modal-sub" id="mode-context">—</p>
+        <div class="mode-grid">
+          <button class="mode-btn" id="mode-self">
+            <span class="mb-icon">🙋</span>
+            <b>Jawab Sendiri</b>
+            <small>Benar → poin penuh untukmu</small>
+          </button>
+          <button class="mode-btn" id="mode-throw">
+            <span class="mb-icon">🔀</span>
+            <b>Lempar ke Peserta Lain</b>
+            <small>Penerima benar → kamu −5 poin · Penerima salah → kamu aman</small>
+          </button>
+        </div>
+        <button class="btn ghost block" id="mode-cancel">Batal · kembalikan kotak soal</button>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-target">
+      <div class="modal-backdrop" data-close="modal-target"></div>
+      <div class="modal-card">
+        <h3>➡️ Lempar Soal ke Siapa?</h3>
+        <p class="modal-sub" id="target-context">—</p>
+        <div class="target-list" id="target-list"></div>
+        <button class="btn ghost block" id="target-cancel">Batal</button>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-timeup">
+      <div class="modal-backdrop" data-close="modal-timeup"></div>
+      <div class="modal-card center">
+        <div class="big-icon blink">⏰</div>
+        <h3 class="danger-text">WAKTU HABIS</h3>
+        <p class="modal-sub" id="timeup-context">—</p>
+        <div class="timeup-actions">
+          <button class="btn wrong big" id="tu-wrong">✘ Tandai SALAH</button>
+          <div class="bonus-row">
+            <span>Tambah waktu:</span>
+            <button class="btn small" data-tubonus="5">+5 dtk</button>
+            <button class="btn small" data-tubonus="10">+10 dtk</button>
+            <button class="btn small" data-tubonus="15">+15 dtk</button>
+            <button class="btn small" data-tubonus="30">+30 dtk</button>
+          </div>
+          <button class="btn ghost" id="tu-continue">▶ Lanjutkan Menjawab</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-confirm">
+      <div class="modal-backdrop" data-close="modal-confirm"></div>
+      <div class="modal-card small-card">
+        <h3 id="confirm-title">Konfirmasi</h3>
+        <p class="modal-sub" id="confirm-msg">—</p>
+        <div class="modal-actions">
+          <button class="btn ghost" id="confirm-cancel">Batal</button>
+          <button class="btn gold" id="confirm-ok">Ya, Lanjutkan</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-name">
+      <div class="modal-backdrop" data-close="modal-name"></div>
+      <div class="modal-card small-card">
+        <h3>✏️ Edit Nama Peserta</h3>
+        <p class="modal-sub">Ubah nama kapan saja. Skor &amp; statistik tidak berubah. Nama harus unik.</p>
+        <input type="text" id="name-input" maxlength="24" placeholder="Nama peserta" />
+        <p class="inline-error hidden" id="name-error"></p>
+        <div class="modal-actions">
+          <button class="btn ghost" id="name-cancel">Batal</button>
+          <button class="btn gold" id="name-save">Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-import">
+      <div class="modal-backdrop" data-close="modal-import"></div>
+      <div class="modal-card wide">
+        <h3>📥 Manajemen Bank Soal</h3>
+        <p class="modal-sub">Unggah file <b>.txt</b> atau tempel teks soal, <b>atau</b> kelola langsung soal pada bank yang sedang aktif.</p>
+
+        <div class="import-grid">
+          <label class="file-drop" id="file-drop">
+            <input type="file" id="file-input" accept=".txt,text/plain" hidden />
+            <span class="fd-icon">📄</span>
+            <b>Pilih file Soal.txt</b>
+            <small>klik atau seret file ke sini</small>
+          </label>
+          <div class="or">atau</div>
+          <textarea id="import-text" placeholder="[KATEGORI_MUDAH]&#10;&#10;Q: Pertanyaan mudah 1&#10;A: Jawaban mudah 1&#10;…"></textarea>
+        </div>
+
+        <div class="import-actions">
+          <button class="btn ghost small" id="btn-template">⬇️ Unduh Template</button>
+          <button class="btn ghost small" id="btn-validate">🔍 Parsing &amp; Validasi</button>
+          <button class="btn ghost small danger" id="btn-clear-bank">🗑️ Kosongkan Bank</button>
+        </div>
+
+        <div class="import-preview" id="import-preview">
+          <p class="muted">Belum ada pratinjau. Unggah file atau tempel teks, lalu klik <b>Parsing &amp; Validasi</b>.</p>
+        </div>
+
+        <div class="bank-editor">
+          <div class="be-head">
+            <h4>✏️ Kelola Soal Bank Saat Ini</h4>
+            <span class="be-count" id="be-count">—</span>
+          </div>
+          <p class="muted small">Tambah / hapus soal langsung tanpa perlu impor ulang. Mengubah bank akan menutup soal aktif (kalau ada) dan membangun ulang papan soal.</p>
+          <form class="be-add" id="be-add-form" autocomplete="off">
+            <select id="be-cat">
+              <option value="mudah">Mudah · 10 poin</option>
+              <option value="sulit">Sulit · 20 poin</option>
+              <option value="vhard">Sangat Sulit · 30 poin</option>
+            </select>
+            <input type="text" id="be-q" placeholder="Tulis pertanyaan…" maxlength="320" />
+            <input type="text" id="be-a" placeholder="Tulis jawaban…" maxlength="220" />
+            <button class="btn gold small" type="submit">＋ Tambah</button>
+          </form>
+          <div class="be-list" id="be-list"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn ghost" id="import-cancel">Tutup</button>
+          <button class="btn gold" id="import-apply" disabled>✅ Terapkan Bank dari Pratinjau</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-settings">
+      <div class="modal-backdrop" data-close="modal-settings"></div>
+      <div class="modal-card">
+        <h3>⚙️ Pengaturan</h3>
+        <p class="modal-sub">Durasi timer, suara, dan panel dapat diatur.</p>
+
+        <div class="settings-block">
+          <div class="settings-label">Durasi timer default</div>
+          <div class="radio-row" id="settings-duration">
+            <label><input type="radio" name="dur" value="15" /> 15 dtk</label>
+            <label><input type="radio" name="dur" value="30" checked /> 30 dtk</label>
+            <label><input type="radio" name="dur" value="45" /> 45 dtk</label>
+            <label><input type="radio" name="dur" value="60" /> 60 dtk</label>
+            <label class="custom-radio"><input type="radio" name="dur" value="custom" /> Custom
+              <input type="number" id="settings-custom" min="5" max="600" placeholder="dtk" />
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <label class="switch big">
+            <input type="checkbox" id="settings-sound" checked />
+            <span>Efek suara (timer, benar/salah)</span>
+          </label>
+          <label class="switch big">
+            <input type="checkbox" id="settings-judge-sound" checked />
+            <span>Efek suara saat BENAR / SALAH</span>
+          </label>
+          <label class="switch big">
+            <input type="checkbox" id="settings-timer-enabled" checked />
+            <span>Aktifkan timer otomatis saat soal dibuka</span>
+          </label>
+        </div>
+
+        <div class="settings-block">
+          <button class="btn ghost small" id="btn-export-history">💾 Ekspor Riwayat (JSON)</button>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn gold" id="settings-close">Simpan &amp; Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-scoreboard">
+      <div class="modal-backdrop" data-close="modal-scoreboard"></div>
+      <div class="modal-card wide full">
+        <div class="sb-head">
+          <h3>🏆 PAPAN SKOR</h3>
+          <div class="sb-head-actions">
+            <span class="sb-note" id="sb-note">Update real-time</span>
+            <button class="btn ghost small" id="sb-close">Tutup</button>
+          </div>
+        </div>
+        <div class="sb-scroll">
+          <table class="sb-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Peserta</th><th>Poin</th><th>Benar</th><th>Salah</th><th>Dijawab</th>
+                <th title="Jawaban benar dari soal lemparan / total lemparan diterima">Lemparan Diterima</th>
+                <th>Lemparan Dilakukan</th><th>Penalti</th><th>Tingkat Keberhasilan</th>
+              </tr>
+            </thead>
+            <tbody id="sb-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modal-history">
+      <div class="modal-backdrop" data-close="modal-history"></div>
+      <div class="modal-card wide full">
+        <div class="sb-head">
+          <h3>📜 RIWAYAT PERMAINAN</h3>
+          <div class="sb-head-actions">
+            <button class="btn ghost small danger" id="btn-clear-history">🗑️ Bersihkan Riwayat</button>
+            <button class="btn ghost small" id="history-close">Tutup</button>
+          </div>
+        </div>
+        <div class="tabs" id="history-tabs">
+          <button class="tab active" data-tab="game">Permainan</button>
+          <button class="tab" data-tab="throw">Lemparan</button>
+          <button class="tab" data-tab="bonus">Bonus Waktu</button>
+          <button class="tab" data-tab="timer">Timer</button>
+        </div>
+        <div class="tab-panels">
+          <div class="tab-panel active" data-panel="game"><div class="table-wrap" id="hist-game"></div></div>
+          <div class="tab-panel" data-panel="throw"><div class="table-wrap" id="hist-throw"></div></div>
+          <div class="tab-panel" data-panel="bonus"><div class="table-wrap" id="hist-bonus"></div></div>
+          <div class="tab-panel" data-panel="timer"><div class="table-wrap" id="hist-timer"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-wrap" id="toast-wrap"></div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

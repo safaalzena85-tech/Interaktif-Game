@@ -1,0 +1,95 @@
+[KATEGORI_MUDAH]
+
+Q: Apa ibu kota negara Indonesia?
+A: Jakarta
+
+Q: Berapa hasil dari 7 × 8?
+A: 56
+
+Q: Hewan apa yang dikenal sebagai raja hutan?
+A: Singa
+
+Q: Apa nama satelit alami Bumi?
+A: Bulan
+
+Q: Apa saja warna bendera negara Indonesia?
+A: Merah dan Putih
+
+Q: Organ apa yang memompa darah ke seluruh tubuh?
+A: Jantung
+
+Q: Berapa jumlah hari dalam satu pekan?
+A: 7 (tujuh) hari
+
+Q: Siapakah presiden pertama Republik Indonesia?
+A: Ir. Soekarno
+
+Q: Berapa jumlah huruf dalam alfabet (aksara Latin)?
+A: 26 huruf
+
+Q: Apa nama gunung tertinggi di Pulau Jawa?
+A: Gunung Semeru
+
+[KATEGORI_SULIT]
+
+Q: Apa ibu kota Provinsi Jawa Barat?
+A: Bandung
+
+Q: Berapa hasil dari 12 × 12?
+A: 144
+
+Q: Planet manakah yang dijuluki raja planet?
+A: Jupiter
+
+Q: Siapa penulis novel "Laskar Pelangi"?
+A: Andrea Hirata
+
+Q: Berapa jumlah pemain inti dalam satu tim sepak bola?
+A: 11 pemain
+
+Q: Gas apa yang dibutuhkan tumbuhan untuk fotosintesis?
+A: Karbon dioksida (CO₂)
+
+Q: Pada tahun berapa Indonesia memproklamasikan kemerdekaannya?
+A: 1945
+
+Q: Apa simbol unsur kimia untuk emas?
+A: Au (Aurum)
+
+Q: Siapakah pelukis lukisan "Mona Lisa"?
+A: Leonardo da Vinci
+
+Q: Sungai terpanjang di Pulau Jawa bernama apa?
+A: Sungai Bengawan Solo
+
+[KATEGORI_SANGAT_SULIT]
+
+Q: Siapakah perdana menteri pertama Indonesia?
+A: Sutan Sjahrir
+
+Q: Terusan Suez menghubungkan Laut Mediterania dengan laut apa?
+A: Laut Merah
+
+Q: Pada tahun berapa Peristiwa Sumpah Pemuda terjadi?
+A: 1928
+
+Q: Apa nomor atom unsur kimia emas (Au)?
+A: 79
+
+Q: Siapakah presiden ke-7 Republik Indonesia?
+A: Joko Widodo
+
+Q: Apa nama gunung tertinggi di Indonesia?
+A: Puncak Jaya (Carstensz Pyramid)
+
+Q: Berapa jumlah provinsi di Indonesia saat ini?
+A: 38 provinsi
+
+Q: Apa nama galaksi tempat tata surya kita berada?
+A: Galaksi Bima Sakti (Milky Way)
+
+Q: Siapakah komposer lagu wajib nasional "Gugur Bunga"?
+A: Ismail Marzuki
+
+Q: Terusan Panama menghubungkan Samudra Atlantik dengan samudra apa?
+A: Samudra Pasifik
