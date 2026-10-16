@@ -79,6 +79,291 @@ function handleBeep(remainingMs, running) {
   if (sec <= 10 && sec > 0) beep(880, 90, 0.2);
 }
 
+/* ============================================================
+   MULTI-PERANGKAT — membangun snapshot & mengirim ke layar tampilan
+   ============================================================ */
+let lastPopup = null;       // { correct, entry, at }
+let introActive = false;    // sedang memutar efek loading bar?
+let introPct = 0;
+let introLabel = 'Bersiap memulai…';
+
+/** Bangun "snapshot" ringkas dari keadaan permainan untuk layar tampilan. */
+function buildSnapshot() {
+  const s = Store.state;
+  const boxes = {};
+  (s.boxes || []).forEach(b => {
+    boxes[b.n] = { n: b.n, status: b.status, category: b.category, result: b.result || null };
+  });
+
+  const ranking = Store.ranking().map(r => ({
+    id: r.participant.id,
+    name: r.participant.name,
+    score: r.participant.score,
+    correct: r.participant.correct,
+    wrong: r.participant.wrong,
+    rank: r.rank
+  }));
+
+  let current = null;
+  if (s.current) {
+    const c = s.current;
+    const box = Store.boxByNumber(c.boxN);
+    const cat = CATS[c.category];
+    current = {
+      boxN: c.boxN,
+      category: c.category,
+      points: cat ? cat.points : 0,
+      phase: c.phase,
+      mode: c.mode,
+      throwerName: c.throwerName,
+      answererName: c.answererName,
+      questionShown: !!c.questionShown,
+      answerShown: !!c.answerShown,
+      question: box ? box.question : '',
+      answer: box ? box.answer : ''
+    };
+  }
+
+  let phase = 'idle';
+  if (introActive) phase = 'intro';
+  else if (s.current) phase = s.current.phase;
+
+  const done = (s.boxes || []).filter(b => b.status === 'done').length;
+  const total = (s.boxes || []).length;
+
+  return {
+    v: 1,
+    ts: Date.now(),
+    room: Net.room || null,
+    phase: phase,
+    intro: introActive ? { pct: Math.round(introPct), label: introLabel } : null,
+    bankLabel: s.bankLabel,
+    counts: { total: total, done: done, left: Math.max(0, total - done) },
+    boxOrder: (s.boxOrder || []).slice(),
+    boxes: boxes,
+    ranking: ranking,
+    activeId: s.activeId,
+    current: current,
+    timer: {
+      totalMs: timer.totalMs,
+      remainingMs: Math.round(timer.remainingMs),
+      running: timer.running,
+      enabled: !!s.settings.timerEnabled
+    },
+    popup: lastPopup
+  };
+}
+
+/** Kirim keadaan terbaru ke layar tampilan (bila mode kontrol aktif). */
+function pushState(immediate) {
+  if (typeof Net === 'undefined' || !Net.enabled || Net.role !== 'controller') return;
+  try { Net.push(buildSnapshot(), !!immediate); } catch (e) { /* abaikan */ }
+}
+
+/* Setiap render => sinkronkan. Dibungkus agar tidak perlu mengubah banyak tempat. */
+(function hookRenderers() {
+  if (typeof UI === 'undefined') return;
+  const _renderAll = UI.renderAll.bind(UI);
+  UI.renderAll = function () { _renderAll(); pushState(false); };
+  const _renderMod = UI.renderModerator.bind(UI);
+  UI.renderModerator = function () { _renderMod(); pushState(false); };
+  const _renderTimer = UI.renderTimer.bind(UI);
+  UI.renderTimer = function (a, b, c) { _renderTimer(a, b, c); pushState(false); };
+})();
+
+/* ---------------- Mode ringkas (HP) ---------------- */
+function isCompact() { return document.documentElement.classList.contains('compact'); }
+
+function applyCompactMode() {
+  const narrow = window.matchMedia('(max-width: 900px)').matches;
+  document.documentElement.classList.toggle('compact', narrow);
+  document.body.classList.toggle('compact', narrow);
+  fitStage();
+}
+
+/* ---------------- Efek loading bar "Mulai Quiz" ---------------- */
+let _introTimer = null;
+function startQuizIntro() {
+  if (introActive) return;
+  introActive = true;
+  introPct = 0;
+  introLabel = 'Mempersiapkan papan soal…';
+
+  const ov = $('#intro-overlay');
+  if (ov) ov.classList.remove('hidden');
+
+  Store.state.current = null;
+  Store.save();
+  UI.renderAll();
+  pushState(true);
+
+  const t0 = performance.now();
+  const DUR = 2600;
+
+  const step = () => {
+    const t = Math.min(1, (performance.now() - t0) / DUR);
+    introPct = t * 100;
+    if (t > 0.55) introLabel = 'Mengacak posisi…';
+    if (t > 0.85) introLabel = 'Siap!';
+    const fill = $('#intro-fill'); const pct = $('#intro-pct'); const sub = $('#intro-sub');
+    if (fill) fill.style.width = Math.round(introPct) + '%';
+    if (pct) pct.textContent = Math.round(introPct) + '%';
+    if (sub) sub.textContent = introLabel;
+    pushState(false);
+    if (t >= 1) {
+      clearInterval(_introTimer); _introTimer = null;
+      introActive = false;
+      if (ov) ov.classList.add('hidden');
+      pushState(true);
+      UI.toast('▶ Quiz dimulai! Pilih kotak soal.', 'success', 2600);
+    }
+  };
+  step();
+  _introTimer = setInterval(step, 80);
+}
+
+/* ---------------- Panel & status multi-perangkat ---------------- */
+function setNetStatus(status) {
+  const row = $('#net-status-row');
+  const txt = $('#net-status-text');
+  const dot = $('#net-dot');
+  if (!row) return;
+  row.classList.remove('online', 'connecting', 'error');
+  const map = {
+    off: ['', 'Nonaktif'],
+    local: ['error', 'Butuh server (buka lewat http://…)'],
+    connecting: ['connecting', 'Menyambung ke server…'],
+    online: ['online', 'Terhubung — siap menerima layar tampilan'],
+    error: ['error', 'Koneksi terputus — mencoba lagi…']
+  };
+  const [cls, text] = map[status] || map.off;
+  if (cls) row.classList.add(cls);
+  if (txt) txt.textContent = text;
+  if (dot) dot.style.display = '';
+}
+
+function refreshNetUI() {
+  const room = Net.room;
+  if ($('#net-room')) $('#net-room').textContent = room || '—';
+  if ($('#net-url')) $('#net-url').value = room ? Net.displayURL(room) : '';
+  if ($('#net-start')) $('#net-start').disabled = !!Net.enabled;
+  if ($('#net-stop')) $('#net-stop').disabled = !Net.enabled;
+  const chip = $('#chip-net');
+  if (chip) chip.classList.toggle('hidden', !Net.enabled);
+}
+
+function refreshPresence(p) {
+  if ($('#net-displays')) $('#net-displays').textContent = (p && p.displays) || 0;
+  if ($('#net-controllers')) $('#net-controllers').textContent = (p && p.controllers) || 0;
+  const chipVal = $('#chip-net-val');
+  if (chipVal) chipVal.textContent = (p && p.displays) || 0;
+}
+
+/** Buat (atau pakai ulang) ruang lalu sambung sebagai perangkat kontrol. */
+async function enableNetAsController(opts) {
+  opts = opts || {};
+  if (!Net.available()) {
+    UI.toast('Mode multi-perangkat butuh dibuka lewat server (node server.js).', 'error', 3600);
+    return false;
+  }
+  try {
+    let reuse = null;
+    try { reuse = JSON.parse(localStorage.getItem('quizshowpro_room') || 'null'); } catch (e) { reuse = null; }
+
+    let room = null, token = null;
+    if (reuse && reuse.room && reuse.token) {
+      try {
+        const r = await fetch('/api/health?room=' + encodeURIComponent(reuse.room), { cache: 'no-store' });
+        const j = await r.json();
+        if (j.ok) { room = reuse.room; token = reuse.token; }
+      } catch (e) { /* buat ruang baru */ }
+    }
+    if (!room) {
+      const j = await Net.createRoom();
+      room = j.room; token = j.token;
+    } else {
+      Net.room = room; Net.token = token; Net.enabled = true;
+    }
+    localStorage.setItem('quizshowpro_room', JSON.stringify({ room, token }));
+
+    Net.onStatus = st => { setNetStatus(st); refreshNetUI(); };
+    Net.onPresence = p => { refreshPresence(p); };
+    Net.connect('controller');
+    refreshNetUI();
+    setNetStatus(Net.status);
+    pushState(true);
+    if (!opts.silent) UI.toast('📡 Layar tampilan aktif · Kode ruang <b>' + room + '</b>', 'success', 3600);
+    return true;
+  } catch (e) {
+    UI.toast('Gagal mengaktifkan mode multi-perangkat.', 'error', 3200);
+    return false;
+  }
+}
+
+function disableNet() {
+  Net.disconnect();
+  localStorage.removeItem('quizshowpro_room');
+  setNetStatus('off');
+  refreshNetUI();
+  refreshPresence({ controllers: 0, displays: 0 });
+  UI.toast('⏹ Mode multi-perangkat diputuskan.', 'info');
+}
+
+function openNetModal() {
+  refreshNetUI();
+  setNetStatus(Net.enabled ? Net.status : 'off');
+  UI.openModal('modal-net');
+}
+
+/* ---------------- Pilihan peran di awal (setup) ---------------- */
+function showSetupOverlay() {
+  const ov = $('#setup-overlay');
+  if (!ov) return;
+  ov.classList.remove('hidden');
+
+  const available = Net.available();
+  const note = $('#setup-note');
+  const lastRole = localStorage.getItem('quizshowpro_role');
+
+  ov.querySelectorAll('.setup-role').forEach(btn => {
+    const role = btn.dataset.role;
+    btn.classList.toggle('selected', lastRole === role);
+    if (!available && role !== 'local') {
+      btn.disabled = true;
+    }
+  });
+
+  if (note) {
+    note.classList.toggle('warn', !available);
+    note.innerHTML = available
+      ? 'Semua perangkat harus berada di <b>WiFi yang sama</b>. Perangkat kontrol membuat kode ruang untuk layar tampilan.'
+      : '⚠️ Mode multi-perangkat hanya bisa dipakai bila halaman dibuka lewat server: jalankan <b>node server.js</b> lalu buka <b>http://IP-laptop:8080/</b>. Saat ini hanya mode <b>Lokal</b> yang tersedia.';
+  }
+}
+
+function chooseRole(role) {
+  localStorage.setItem('quizshowpro_role', role);
+  const ov = $('#setup-overlay');
+
+  if (role === 'display') {
+    const room = new URLSearchParams(location.search).get('room') || (Net.room || '');
+    const target = 'display.html' + (room ? '?room=' + encodeURIComponent(room) : '');
+    location.href = target;
+    return;
+  }
+
+  if (ov) ov.classList.add('hidden');
+
+  if (role === 'controller') {
+    enableNetAsController().then(ok => {
+      if (!ok) setNetStatus(Net.available() ? 'off' : 'local');
+    });
+  } else {
+    Net.disconnect();
+    setNetStatus('off');
+  }
+}
+
 /* ---------------- Panggung 16:9 & Fullscreen ---------------- */
 const STAGE_W = 1920;
 const STAGE_H = 1080;
@@ -88,6 +373,14 @@ function fitStage() {
   const frame = document.getElementById('stage-frame');
   const stage = document.getElementById('stage');
   if (!frame || !stage) return;
+
+  // Mode ringkas (HP): panggung memakai lebar penuh, tanpa transform skala.
+  if (isCompact()) {
+    stage.style.transform = 'none';
+    document.documentElement.style.setProperty('--stage-scale', 1);
+    if (typeof UI !== 'undefined' && UI.layoutBoard) UI.layoutBoard();
+    return;
+  }
 
   const availW = frame.clientWidth || window.innerWidth;
   const availH = frame.clientHeight || window.innerHeight;
@@ -240,12 +533,14 @@ function judge(correct, fromTimeup) {
   }
 
   // Popup + efek suara khas
+  lastPopup = { correct: !!correct, entry: e || null, at: Date.now() };
   UI.showJudgePopup(correct, e);
   playJudgeSound(correct);
 
   timer.reset(s.settings.duration);
   UI.renderAll();
   if ($('#modal-scoreboard').classList.contains('open')) UI.renderScoreboard();
+  pushState(true);
 }
 
 function onTimeUp() {
@@ -902,6 +1197,44 @@ function wireEvents() {
 
   /* Simpan posisi timer saat halaman ditutup */
   window.addEventListener('beforeunload', () => Store.save());
+
+  /* ============ Multi-perangkat (layar tampilan) ============ */
+  $('#btn-net').addEventListener('click', openNetModal);
+  $('#net-start').addEventListener('click', () => enableNetAsController());
+  $('#net-stop').addEventListener('click', disableNet);
+  $('#net-close').addEventListener('click', () => UI.closeModal('modal-net'));
+  $('#net-copy').addEventListener('click', async () => {
+    const url = $('#net-url').value;
+    if (!url) return;
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {
+      try {
+        const inp = $('#net-url');
+        inp.focus(); inp.select();
+        ok = document.execCommand('copy');
+      } catch (e2) { ok = false; }
+    }
+    UI.toast(ok ? '📋 Tautan disalin.' : 'Gagal menyalin — salin manual: ' + url, ok ? 'success' : 'error', 2400);
+  });
+
+  /* ============ Intro loading bar ============ */
+  $('#btn-quiz-intro').addEventListener('click', async () => {
+    if (Store.state.current) {
+      const ok = await confirmDialog('Mulai quiz sekarang? Soal yang sedang berjalan akan ditutup tanpa dinilai.', 'Ya, Mulai Quiz', true);
+      if (!ok) return;
+    }
+    startQuizIntro();
+  });
+
+  /* ============ Setup peran perangkat ============ */
+  $$('#setup-overlay .setup-role').forEach(btn => {
+    btn.addEventListener('click', () => chooseRole(btn.dataset.role));
+  });
+
+  /* ============ Mode ringkas saat layar sempit ============ */
+  applyCompactMode();
+  window.addEventListener('resize', applyCompactMode);
+  window.addEventListener('orientationchange', () => setTimeout(applyCompactMode, 120));
 }
 
 function closeWithCleanup(id) {
@@ -923,6 +1256,15 @@ function closeWithCleanup(id) {
 
 /* ---------------- Boot ---------------- */
 function init() {
+  /* Tautan tampilan (?room= / ?role=display) → buka halaman layar peserta. */
+  const _params = new URLSearchParams(location.search);
+  const _urlRoom = _params.get('room') || _params.get('r');
+  const _urlRole = _params.get('role');
+  if (_urlRoom || _urlRole === 'display') {
+    location.replace('display.html' + (_urlRoom ? '?room=' + encodeURIComponent(_urlRoom) : ''));
+    return;
+  }
+
   Store.load();
 
   // Jika jumlah kotak tidak cocok dengan bank tersimpan, bangun ulang (bank kosong tetap terkunci).
@@ -947,6 +1289,14 @@ function init() {
   if (!Store.state.participants.length) {
     UI.toast('👋 Selamat datang! Tambahkan peserta untuk memulai permainan.', 'info', 4000);
   }
+
+  /* Kesiapan mode multi-perangkat */
+  setNetStatus(Net.available() ? 'off' : 'local');
+  refreshNetUI();
+  refreshPresence({ controllers: 0, displays: 0 });
+
+  /* Pilih peran perangkat di awal */
+  showSetupOverlay();
 }
 
 document.addEventListener('DOMContentLoaded', init);

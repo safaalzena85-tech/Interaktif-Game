@@ -29,6 +29,7 @@
         <div class="stat-chip"><span>Soal Tersisa</span><b id="chip-remaining">30</b></div>
         <div class="stat-chip"><span>Soal Selesai</span><b id="chip-done">0</b></div>
         <div class="stat-chip gold"><span>Bank Soal</span><b id="chip-bank">30 soal</b></div>
+        <div class="stat-chip hidden" id="chip-net"><span>Layar Tampilan</span><b id="chip-net-val">0</b></div>
       </div>
 
       <div class="topbar-actions">
@@ -150,6 +151,8 @@
               <button class="mini-toggle" id="toggle-tools" type="button" title="Perkecil panel">▸</button>
             </div>
             <div class="tools-body">
+              <button class="btn block gold" id="btn-quiz-intro">▶ Mulai Quiz (intro)</button>
+              <button class="btn block" id="btn-net">📡 Hubungkan Layar Tampilan</button>
               <button class="btn block" id="btn-shuffle2">🔀 Acak Posisi Kotak</button>
               <button class="btn block" id="btn-history2">📜 Riwayat Permainan</button>
               <button class="btn block" id="btn-import2">📥 Ganti Bank Soal</button>
@@ -426,7 +429,83 @@
       </div>
     </div>
 
+    <div class="modal" id="modal-net">
+      <div class="modal-backdrop" data-close="modal-net"></div>
+      <div class="modal-card">
+        <h3>📡 Layar Tampilan (Multi-Perangkat)</h3>
+        <p class="modal-sub">Kendalikan dari perangkat ini, lalu tampilkan ke peserta lewat perangkat lain di <b>WiFi yang sama</b>.</p>
+
+        <div class="net-status-row" id="net-status-row">
+          <span class="net-dot" id="net-dot"></span>
+          <span id="net-status-text">Nonaktif</span>
+        </div>
+
+        <div class="net-block">
+          <label>Kode Ruang</label>
+          <div class="net-room" id="net-room">—</div>
+        </div>
+
+        <div class="net-block">
+          <label>Buka di perangkat TAMPILAN</label>
+          <div class="net-url-row">
+            <input type="text" id="net-url" readonly value="" />
+            <button class="btn gold small" id="net-copy" type="button">📋 Salin</button>
+          </div>
+          <p class="muted small">Buka tautan di atas pada laptop/proyektor peserta, atau buka <b>/display</b> lalu masukkan kode ruang.</p>
+        </div>
+
+        <div class="net-presence">
+          <div><b id="net-displays">0</b><span>Layar tampilan</span></div>
+          <div><b id="net-controllers">0</b><span>Perangkat kontrol</span></div>
+          <div><b id="net-host">—</b><span>Alamat server</span></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn ghost" id="net-stop">⏹ Putuskan</button>
+          <button class="btn ghost" id="net-close">Tutup</button>
+          <button class="btn gold" id="net-start">▶ Aktifkan</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast-wrap" id="toast-wrap"></div>
+
+    <!-- ============ INTRO (loading bar) ============ -->
+    <div class="intro-overlay hidden" id="intro-overlay">
+      <div class="intro-inner">
+        <div class="intro-logo">🎯</div>
+        <div class="intro-title">QUIZ SHOW <span>PRO</span></div>
+        <div class="intro-sub" id="intro-sub">Bersiap memulai…</div>
+        <div class="intro-bar"><div class="intro-fill" id="intro-fill"></div></div>
+        <div class="intro-pct" id="intro-pct">0%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETUP (pilih peran perangkat) ============ -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-card">
+    <div class="setup-brand"><span>🎯</span> QUIZ SHOW <b>PRO</b></div>
+    <p class="setup-sub">Pilih peran perangkat ini</p>
+    <div class="setup-grid">
+      <button class="setup-role" data-role="controller" type="button">
+        <span class="sr-icon">🎮</span>
+        <b>Kontrol / Moderator</b>
+        <small>Perangkat ini mengendalikan permainan. Sebuah <b>kode ruang</b> dibuat untuk menyambungkan layar tampilan.</small>
+      </button>
+      <button class="setup-role" data-role="display" type="button">
+        <span class="sr-icon">🖥️</span>
+        <b>Tampilan Peserta</b>
+        <small>Perangkat ini menjadi layar besar untuk peserta (laptop/proyektor) — tanpa tombol kontrol.</small>
+      </button>
+      <button class="setup-role" data-role="local" type="button">
+        <span class="sr-icon">💻</span>
+        <b>Lokal (1 perangkat)</b>
+        <small>Mainkan semuanya di perangkat ini saja, tanpa koneksi tambahan.</small>
+      </button>
+    </div>
+    <p class="setup-note" id="setup-note"></p>
   </div>
 </div>
 
@@ -435,6 +514,7 @@
 <script src="js/timer.js"></script>
 <script src="js/store.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/net.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#070b17" />
+<title>Quiz Show Pro — Layar Tampilan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="stylesheet" href="css/display.css" />
+</head>
+<body class="display-body">
+
+<div class="disp" id="disp">
+
+  <header class="d-top">
+    <div class="d-brand">
+      <span class="d-logo">🎯</span>
+      <div>
+        <h1>QUIZ SHOW <span>PRO</span></h1>
+        <p>Cerdas Cermat Interaktif · Mode Misteri</p>
+      </div>
+    </div>
+    <div class="d-meta">
+      <span class="d-chip" id="d-room">Ruang —</span>
+      <span class="d-chip" id="d-count">0 pemain</span>
+      <span class="d-status connecting" id="d-status"><i></i><b>Menyambung…</b></span>
+      <button class="d-icon-btn" id="d-sound" title="Aktifkan suara">🔇</button>
+      <button class="d-icon-btn" id="d-fs" title="Fullscreen (F)">⛶</button>
+    </div>
+  </header>
+
+  <main class="d-main">
+    <section class="d-stage" id="d-stage">
+
+      <div class="d-board-wrap" id="d-board-wrap">
+        <div class="d-board board-grid" id="d-board"></div>
+      </div>
+
+      <div class="d-question hidden" id="d-question">
+        <div class="dq-head">
+          <span class="dq-cat" id="dq-cat">—</span>
+          <span class="dq-num" id="dq-num">Soal #–</span>
+        </div>
+        <div class="dq-body">
+          <div class="dq-q" id="dq-q">—</div>
+          <div class="dq-a hidden" id="dq-a"><span>JAWABAN</span><b id="dq-answer">—</b></div>
+        </div>
+        <div class="dq-foot" id="dq-foot"></div>
+      </div>
+
+    </section>
+
+    <aside class="d-side">
+      <div class="d-timer t-green" id="d-timer">
+        <svg viewBox="0 0 120 120">
+          <circle class="dtr-track" cx="60" cy="60" r="54"></circle>
+          <circle class="dtr-prog" id="dtr-prog" cx="60" cy="60" r="54"></circle>
+        </svg>
+        <div class="dtr-text"><b id="dtr-num">30</b><span>detik</span></div>
+      </div>
+      <div class="d-phase" id="d-phase">Menunggu permainan dimulai…</div>
+      <div class="d-ranks-head">
+        <span>🏆 PAPAN SKOR</span>
+        <span class="d-ranks-sub" id="d-ranks-sub">real-time</span>
+      </div>
+      <div class="d-ranks" id="d-ranks"></div>
+    </aside>
+  </main>
+
+  <!-- ===== INTRO (loading bar) ===== -->
+  <div class="d-intro hidden" id="d-intro">
+    <div class="di-inner">
+      <div class="di-logo">🎯</div>
+      <div class="di-title">QUIZ SHOW <span>PRO</span></div>
+      <div class="di-sub" id="di-sub">Bersiap memulai…</div>
+      <div class="di-bar"><div class="di-fill" id="di-fill"></div></div>
+      <div class="di-pct" id="di-pct">0%</div>
+    </div>
+  </div>
+
+  <!-- ===== JUDGE POPUP ===== -->
+  <div class="d-judge" id="d-judge">
+    <div class="dj-card">
+      <div class="dj-ring"></div>
+      <div class="dj-icon" id="dj-icon">✔</div>
+      <div class="dj-title" id="dj-title">BENAR!</div>
+      <div class="dj-sub" id="dj-sub">—</div>
+      <div class="dj-pts" id="dj-pts"></div>
+    </div>
+  </div>
+
+  <!-- ===== JOIN (kalau tidak ada kode ruang) ===== -->
+  <div class="d-join hidden" id="d-join">
+    <div class="dj-join-card">
+      <div class="djc-icon">🖥️</div>
+      <h2>Layar Tampilan</h2>
+      <p>Masukkan <b>kode ruang</b> yang tertera di perangkat kontrol, atau buka tautan yang diberikan.</p>
+      <div class="djc-row">
+        <input type="text" id="join-room" placeholder="KODE" maxlength="6" autocomplete="off" />
+        <button class="btn gold" id="join-go">Sambung</button>
+      </div>
+      <p class="djc-err" id="join-err"></p>
+    </div>
+  </div>
+
+  <!-- ===== TOMBOL FULLSCREEN SAAT KOSONG ===== -->
+  <button class="d-bigfs" id="d-bigfs" title="Masuk mode layar penuh (F)">⛶ Tampilkan Layar Penuh</button>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/net.js"></script>
+<script src="js/display.js"></script>
+</body>
+</html>

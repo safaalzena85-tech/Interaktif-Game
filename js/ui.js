@@ -53,6 +53,8 @@ const UI = {
   layoutBoard() {
     const grid = $('#board-grid');
     if (!grid) return;
+    // Mode ringkas (HP): ukuran kotak ditentukan CSS (auto-fill), tidak perlu dihitung.
+    if (document.documentElement.classList.contains('compact')) return;
     const n = Store.state.boxes.length;
     if (!n || grid.classList.contains('hidden')) return;
 
