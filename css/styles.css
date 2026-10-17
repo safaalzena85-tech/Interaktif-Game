@@ -867,6 +867,64 @@ html.compact .setup-brand { font-size: 34px; }
 html.compact .net-presence { grid-template-columns: 1fr; }
 html.compact .be-add { grid-template-columns: 1fr; }
 
+/* --- Sentuh & zoom: cegah zoom otomatis iOS saat fokus input --- */
+html.compact input,
+html.compact select,
+html.compact textarea { font-size: 16px; }
+html.compact button,
+html.compact .btn,
+html.compact .tbtn,
+html.compact .box { touch-action: manipulation; }
+
+/* --- safe-area (poncel berponi / gestur rumah) --- */
+html.compact .stage {
+  padding-left: calc(12px + env(safe-area-inset-left));
+  padding-right: calc(12px + env(safe-area-inset-right));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+html.compact .modal { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+
+/* --- Tinggi viewport dinamis (bilah URL browser ponsel) --- */
+@supports (min-height: 100dvh) {
+  html.compact .stage { min-height: 100dvh; }
+}
+
+/* ============ TIER TABLET (compact, ≥768px) ============
+   Mode ringkas yang dipakai tablet/laptop kecil: manfaatkan
+   lebar layar dengan tata letak 2 kolom. */
+@media (min-width: 768px) {
+  html.compact .stage { padding: 16px; gap: 14px; }
+  html.compact .stage-main { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  html.compact .stage-bottom { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  html.compact .mod-grid { grid-template-columns: 1fr 1fr; }
+  html.compact .moderator-panel.tools-min .mod-grid { grid-template-columns: 1fr 1fr; }
+  html.compact .participant-list { columns: 2; column-gap: 10px; }
+  html.compact .participant-list .p-card { break-inside: avoid; }
+  html.compact .board-grid {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)) !important;
+    gap: 10px !important;
+  }
+  html.compact .judge-btns { flex-direction: row; }
+  html.compact .q-text { font-size: 21px; }
+  html.compact .timer-wrap { width: 150px; height: 150px; }
+  html.compact .timer-text b { font-size: 44px; }
+}
+
+/* ============ PONSEL LANDSCAPE (tinggi sempit) ============ */
+@media (orientation: landscape) and (max-height: 520px) {
+  html.compact .stage { padding-top: 8px; gap: 8px; }
+  html.compact .topbar { padding: 8px 10px; }
+  html.compact .brand-text p { display: none; }
+  html.compact .board-grid {
+    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)) !important;
+    gap: 6px !important;
+  }
+  html.compact .box .box-num { font-size: 18px; }
+  html.compact .timer-wrap { width: 100px; height: 100px; }
+  html.compact .timer-text b { font-size: 30px; }
+  html.compact .fab { bottom: 10px; right: 10px; }
+}
+
 @media (max-width: 900px) {
   .setup-grid { grid-template-columns: 1fr; }
   .net-presence { grid-template-columns: 1fr; }

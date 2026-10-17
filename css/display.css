@@ -300,6 +300,14 @@
 .d-bigfs.hidden { display: none; }
 
 /* ---------------- Responsif (layar kecil / ponsel) ---------------- */
+.disp {
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
+}
+@supports (min-height: 100dvh) {
+  .disp { min-height: 100dvh; }
+}
+
 @media (max-width: 1100px) {
   .disp { grid-template-rows: auto auto; overflow-y: auto; gap: 10px; padding: 10px; }
   .d-top { flex-wrap: wrap; height: auto; padding: 10px 12px; gap: 8px 12px; }
@@ -354,4 +362,16 @@
   .dj-sub { font-size: 15px; }
   .dj-pts { font-size: 22px; }
   .d-bigfs { font-size: 12px; padding: 9px 14px; bottom: 12px; }
+}
+
+/* Ponsel landscape (tinggi sempit) — rapatkan vertikal */
+@media (orientation: landscape) and (max-height: 520px) {
+  .disp { padding: 8px; gap: 8px; grid-template-rows: auto minmax(0, 1fr); }
+  .d-top { padding: 6px 12px; }
+  .d-stage { height: 62vh; min-height: 180px; }
+  .d-timer { width: 80px; }
+  .dtr-text b { font-size: 28px; }
+  .d-ranks { max-height: 22vh; }
+  .dq-q { font-size: 20px; }
+  .dq-a b { font-size: 24px; }
 }

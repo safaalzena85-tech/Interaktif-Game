@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Pratinjau Responsif — Quiz Show Pro</title>
+<style>
+  body { margin:0; background:#111826; color:#e8eefc; font-family:system-ui,sans-serif; padding:16px; }
+  h1 { font-size:16px; margin:0 0 12px; }
+  .row { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+  .dev { background:#1b2436; border:1px solid #2b3550; border-radius:12px; padding:10px; }
+  .dev > b { display:block; font-size:12px; margin-bottom:8px; color:#9fb0d0; }
+  iframe { border:0; border-radius:8px; background:#070b17; display:block; }
+</style>
+</head>
+<body>
+  <h1>Pratinjau responsif Quiz Show Pro (iframe = viewport tiap perangkat)</h1>
+  <div class="row">
+    <div class="dev"><b>HP 390×740 (portrait)</b><iframe src="/index.html" width="390" height="740"></iframe></div>
+    <div class="dev"><b>Tablet 820×1180 (portrait)</b><iframe src="/index.html" width="820" height="1180"></iframe></div>
+    <div class="dev"><b>HP landscape 844×390</b><iframe src="/index.html" width="844" height="390"></iframe></div>
+    <div class="dev"><b>TAMPILAN HP 390×740</b><iframe src="/display?room=962C" width="390" height="740"></iframe></div>
+  </div>
+</body>
+</html>
