@@ -30,6 +30,9 @@ class TimerEngine {
   beginQuestion(sec) {
     if (sec != null) this.totalSec = Math.max(1, Math.round(sec));
     this.usedMs = 0;
+    // Pastikan timer lama benar-benar berhenti dulu, agar reset selalu berlaku.
+    this.running = false;
+    this._cancel();
     this.remainingMs = this.totalMs;
     this.start();
   }

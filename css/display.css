@@ -130,8 +130,8 @@
   background: rgba(34, 197, 94, .14);
   animation: dqIn .28s ease;
 }
-.dq-a span { display: block; font-size: 12px; letter-spacing: 2px; color: #8ee0a8; margin-bottom: 4px; }
-.dq-a b { font-size: 34px; color: #fff; }
+.dq-a span { display: block; font-size: 14px; letter-spacing: 2px; color: #8ee0a8; margin-bottom: 4px; }
+.dq-a b { font-size: 58px; line-height: 1.15; color: #fff; }
 .dq-foot { flex: 0 0 auto; text-align: center; font-size: 18px; color: var(--muted); }
 .dq-foot b { color: var(--gold); }
 
@@ -207,7 +207,7 @@
 
 /* ---------------- Intro / loading bar ---------------- */
 .d-intro {
-  position: absolute; inset: 0; z-index: 60;
+  position: fixed; inset: 0; z-index: 60;
   display: grid; place-items: center;
   background: radial-gradient(1200px 700px at 50% 30%, rgba(59, 130, 246, .25), transparent 60%), rgba(3, 6, 14, .97);
   animation: dqIn .3s ease;
@@ -235,7 +235,7 @@
 
 /* ---------------- Judge popup ---------------- */
 .d-judge {
-  position: absolute; inset: 0; z-index: 70;
+  position: fixed; inset: 0; z-index: 70;
   display: none; align-items: center; justify-content: center;
   pointer-events: none;
 }
@@ -262,7 +262,7 @@
 
 /* ---------------- Join prompt ---------------- */
 .d-join {
-  position: absolute; inset: 0; z-index: 80;
+  position: fixed; inset: 0; z-index: 80;
   display: grid; place-items: center;
   background: rgba(3, 6, 14, .96);
 }
@@ -288,7 +288,7 @@
 
 /* ---------------- Tombol fullscreen besar (saat belum jalan) ---------------- */
 .d-bigfs {
-  position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
   z-index: 55;
   padding: 12px 24px; border-radius: 999px;
   border: 1px solid rgba(247, 201, 72, .5);
@@ -301,13 +301,57 @@
 
 /* ---------------- Responsif (layar kecil / ponsel) ---------------- */
 @media (max-width: 1100px) {
-  .d-main { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+  .disp { grid-template-rows: auto auto; overflow-y: auto; gap: 10px; padding: 10px; }
+  .d-top { flex-wrap: wrap; height: auto; padding: 10px 12px; gap: 8px 12px; }
+  .d-meta { flex-wrap: wrap; }
+  .d-main { grid-template-columns: 1fr; grid-template-rows: none; }
+  .d-stage { height: 52vh; min-height: 300px; }
   .d-side { flex-direction: row; flex-wrap: wrap; align-items: center; }
-  .d-timer { width: 130px; }
-  .dtr-text b { font-size: 44px; }
-  .d-ranks { max-height: 30vh; }
-  .dq-q { font-size: 30px; }
-  .di-title { font-size: 48px; }
+  .d-timer { width: 120px; }
+  .dtr-text b { font-size: 42px; }
+  .d-phase { flex: 1 1 160px; }
+  .d-ranks-head { width: 100%; }
+  .d-ranks { width: 100%; max-height: 30vh; }
+  .dq-q { font-size: 32px; }
+  .dq-a b { font-size: 38px; }
+  .di-title { font-size: 48px; letter-spacing: 3px; }
+  .di-logo { font-size: 54px; }
   .dj-title { font-size: 56px; }
   .dj-icon { font-size: 74px; }
+}
+
+@media (max-width: 640px) {
+  .d-brand { gap: 9px; }
+  .d-brand h1 { font-size: 20px; }
+  .d-brand p { display: none; }
+  .d-logo { width: 38px; height: 38px; font-size: 20px; border-radius: 11px; }
+  .d-chip { font-size: 11px; padding: 6px 9px; }
+  .d-status { padding: 6px 9px; }
+  .d-status b { display: none; }
+  .d-icon-btn { width: 34px; height: 34px; font-size: 15px; }
+  .d-stage { height: 46vh; min-height: 240px; }
+  .d-timer { width: 92px; }
+  .dtr-text b { font-size: 32px; }
+  .dtr-text span { font-size: 9px; }
+  .d-phase { font-size: 12px; padding: 7px 9px; min-height: 36px; }
+  .d-rank-row { grid-template-columns: 34px minmax(0, 1fr) auto; padding: 8px 10px; gap: 8px; }
+  .d-rank-pos { font-size: 20px; }
+  .d-rank-name { font-size: 15px; }
+  .d-rank-pts { font-size: 22px; }
+  .d-rank-tag { display: none; }
+  .d-question { padding: 16px 16px; }
+  .dq-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .dq-q { font-size: 22px; }
+  .dq-a { padding: 12px 16px; }
+  .dq-a b { font-size: 28px; }
+  .di-title { font-size: 30px; letter-spacing: 2px; }
+  .di-logo { font-size: 40px; }
+  .di-sub { font-size: 15px; margin: 10px 0 16px; }
+  .di-pct { font-size: 26px; }
+  .dj-card { padding: 28px 18px; }
+  .dj-title { font-size: 36px; letter-spacing: 3px; }
+  .dj-icon { font-size: 50px; }
+  .dj-sub { font-size: 15px; }
+  .dj-pts { font-size: 22px; }
+  .d-bigfs { font-size: 12px; padding: 9px 14px; bottom: 12px; }
 }

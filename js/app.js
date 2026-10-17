@@ -71,12 +71,29 @@ function playJudgeSound(correct) {
   }
 }
 
+/* Suara "detik" (tick-tock) yang menegangkan di detik-detik akhir. */
+let _tickHigh = false;
+function tickBeep(sec) {
+  const st = Store.state.settings;
+  if (!st.sound || st.tickSound === false) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  _tickHigh = !_tickHigh;
+  const urgent = sec <= 3;                 // 3 detik terakhir → lebih tinggi & tegas
+  const freq = urgent ? 1500 : (_tickHigh ? 1180 : 900);
+  const gain = urgent ? 0.34 : 0.26;
+  const t0 = ctx.currentTime + 0.003;
+  // "tik" pendek bergaya jam
+  scheduleTone(ctx, freq, t0, 42, gain, 'square');
+  scheduleTone(ctx, freq / 2, t0, 26, gain * 0.5, 'sine');
+}
+
 function handleBeep(remainingMs, running) {
   if (!running) { _lastWholeSec = null; return; }
   const sec = Math.ceil(remainingMs / 1000);
   if (sec === _lastWholeSec) return;
   _lastWholeSec = sec;
-  if (sec <= 10 && sec > 0) beep(880, 90, 0.2);
+  if (sec <= 10 && sec > 0) tickBeep(sec);
 }
 
 /* ============================================================
@@ -148,7 +165,8 @@ function buildSnapshot() {
       totalMs: timer.totalMs,
       remainingMs: Math.round(timer.remainingMs),
       running: timer.running,
-      enabled: !!s.settings.timerEnabled
+      enabled: !!s.settings.timerEnabled,
+      tick: s.settings.tickSound !== false
     },
     popup: lastPopup
   };
@@ -171,11 +189,17 @@ function pushState(immediate) {
   UI.renderTimer = function (a, b, c) { _renderTimer(a, b, c); pushState(false); };
 })();
 
-/* ---------------- Mode ringkas (HP) ---------------- */
+/* ---------------- Mode ringkas (semua ukuran layar) ----------------
+   Bila panggung 16:9 (1920×1080) akan tampil terlalu kecil untuk
+   dibaca — di ponsel/tablet/layar pendek — pindah ke tata letak
+   1 kolom yang bisa digulir. */
 function isCompact() { return document.documentElement.classList.contains('compact'); }
 
 function applyCompactMode() {
-  const narrow = window.matchMedia('(max-width: 900px)').matches;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const scale = Math.min(w / STAGE_W, h / STAGE_H);
+  const narrow = scale < 0.56 || w < 720 || h < 480;
   document.documentElement.classList.toggle('compact', narrow);
   document.body.classList.toggle('compact', narrow);
   fitStage();
@@ -826,6 +850,7 @@ function syncSettingsUI() {
   }
   $('#settings-sound').checked = Store.state.settings.sound;
   $('#settings-judge-sound').checked = Store.state.settings.judgeSound !== false;
+  $('#settings-tick-sound').checked = Store.state.settings.tickSound !== false;
   $('#settings-timer-enabled').checked = Store.state.settings.timerEnabled;
 }
 
@@ -1132,6 +1157,12 @@ function wireEvents() {
     Store.state.settings.judgeSound = e.target.checked;
     Store.save();
     if (e.target.checked) playJudgeSound(true);
+  });
+  $('#settings-tick-sound').addEventListener('change', e => {
+    Store.state.settings.tickSound = e.target.checked;
+    Store.save();
+    if (e.target.checked) tickBeep(5);
+    UI.renderModerator();
   });
   $('#settings-timer-enabled').addEventListener('change', e => {
     Store.state.settings.timerEnabled = e.target.checked;

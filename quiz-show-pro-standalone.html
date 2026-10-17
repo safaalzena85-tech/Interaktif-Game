@@ -425,8 +425,8 @@ body {
 .q-cover span { font-size: 32px; }
 .q-answer-wrap { border-top: 1px dashed rgba(34, 197, 94, .4); padding-top: 12px; animation: fadeUp .35s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.ans-label { display: inline-block; font-size: 10px; letter-spacing: 1.5px; font-weight: 800; color: #04240f; background: var(--easy); padding: 2px 8px; border-radius: 5px; margin-bottom: 6px; }
-.q-answer-wrap p { margin: 0; font-size: 19px; font-weight: 600; color: #b9ffcf; }
+.ans-label { display: inline-block; font-size: 12px; letter-spacing: 1.5px; font-weight: 800; color: #04240f; background: var(--easy); padding: 3px 10px; border-radius: 5px; margin-bottom: 8px; }
+.q-answer-wrap p { margin: 0; font-size: 34px; font-weight: 800; line-height: 1.22; color: #b9ffcf; letter-spacing: .3px; }
 
 .q-actions { margin-top: 12px; flex: 0 0 auto; }
 .q-actions-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -734,6 +734,171 @@ kbd { background: rgba(255, 255, 255, .1); border: 1px solid var(--border-strong
 ::-webkit-scrollbar-thumb { background: rgba(140, 170, 220, .25); border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(140, 170, 220, .42); }
 
+/* ============================================================
+   MULTI-PERANGKAT — Setup, modal jaringan, intro loading bar
+   ============================================================ */
+
+/* ---------------- Setup overlay ---------------- */
+.setup-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  display: grid; place-items: center; padding: 24px;
+  overflow-y: auto;
+  background:
+    radial-gradient(1200px 700px at 20% -10%, rgba(247, 201, 72, .14), transparent 60%),
+    radial-gradient(1000px 700px at 90% 10%, rgba(59, 130, 246, .18), transparent 55%),
+    rgba(3, 5, 12, .98);
+  backdrop-filter: blur(3px);
+}
+.setup-overlay.hidden { display: none; }
+.setup-card { width: min(1000px, 94vw); text-align: center; }
+.setup-brand { font-family: var(--font-display); font-size: 46px; letter-spacing: 3px; color: #fff; }
+.setup-brand span { margin-right: 6px; }
+.setup-brand b { color: var(--gold); }
+.setup-sub { color: var(--muted); font-size: 15px; letter-spacing: 1px; text-transform: uppercase; margin: 4px 0 26px; }
+.setup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.setup-role {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 30px 22px; border-radius: 18px; cursor: pointer;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(160deg, rgba(26, 37, 68, .9), rgba(16, 24, 51, .92));
+  color: var(--text); font-family: inherit; text-align: center;
+  transition: transform .16s ease, border-color .2s, box-shadow .2s, background .2s;
+}
+.setup-role:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 20px 50px rgba(0, 0, 0, .55), 0 0 0 1px rgba(247, 201, 72, .3) inset; }
+.setup-role:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.setup-role.selected { border-color: var(--gold); background: linear-gradient(160deg, rgba(247, 201, 72, .18), rgba(16, 24, 51, .92)); }
+.setup-role .sr-icon { font-size: 46px; }
+.setup-role b { font-size: 18px; color: #fff; }
+.setup-role small { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+.setup-note { margin-top: 20px; font-size: 13px; color: var(--muted); min-height: 20px; }
+.setup-note.warn { color: #ffd08a; }
+
+/* ---------------- Modal jaringan ---------------- */
+.net-status-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid var(--border); margin-bottom: 14px; font-size: 14px; font-weight: 600; }
+.net-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted-2); box-shadow: 0 0 10px currentColor; flex: 0 0 auto; }
+.net-status-row.online { border-color: rgba(34, 197, 94, .45); background: rgba(34, 197, 94, .1); color: #b9ffcf; }
+.net-status-row.online .net-dot { background: var(--easy); color: var(--easy); }
+.net-status-row.connecting .net-dot { background: var(--hard); color: var(--hard); animation: npulse 1s infinite; }
+.net-status-row.error { border-color: rgba(239, 68, 68, .45); background: rgba(239, 68, 68, .1); color: #ffd0d0; }
+.net-status-row.error .net-dot { background: var(--vhard); color: var(--vhard); }
+@keyframes npulse { 50% { opacity: .3; } }
+
+.net-block { margin-bottom: 14px; }
+.net-block > label { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted-2); margin-bottom: 6px; font-weight: 700; }
+.net-room { font-family: var(--font-display); font-size: 52px; letter-spacing: 10px; text-align: center; color: var(--gold); padding: 10px; border-radius: 14px; border: 1px dashed rgba(247, 201, 72, .45); background: rgba(247, 201, 72, .07); }
+.net-url-row { display: flex; gap: 8px; }
+.net-url-row input { flex: 1; background: rgba(255, 255, 255, .06); border: 1px solid var(--border-strong); color: var(--text); border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 14px; }
+.net-presence { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.net-presence > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid var(--border); }
+.net-presence b { font-size: 17px; color: #fff; word-break: break-all; }
+.net-presence span { font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--muted-2); }
+
+/* ---------------- Intro loading bar (controller) ---------------- */
+.intro-overlay {
+  position: absolute; inset: 0; z-index: 600;
+  display: grid; place-items: center;
+  background: radial-gradient(1200px 700px at 50% 30%, rgba(59, 130, 246, .25), transparent 60%), rgba(3, 6, 14, .97);
+}
+.intro-overlay.hidden { display: none; }
+.intro-inner { width: min(720px, 80%); text-align: center; }
+.intro-logo { font-size: 62px; animation: introFloat 1.6s ease-in-out infinite; }
+@keyframes introFloat { 50% { transform: translateY(-9px); } }
+.intro-title { font-family: var(--font-display); font-size: 66px; letter-spacing: 5px; color: #fff; line-height: 1; }
+.intro-title span { color: var(--gold); }
+.intro-sub { margin: 14px 0 22px; font-size: 18px; color: var(--muted); letter-spacing: 1px; }
+.intro-bar { height: 20px; border-radius: 999px; background: rgba(255, 255, 255, .08); border: 1px solid var(--border-strong); overflow: hidden; }
+.intro-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--gold-2), var(--gold), #fff6d0); box-shadow: 0 0 24px rgba(247, 201, 72, .6); transition: width .2s ease; }
+.intro-pct { margin-top: 12px; font-family: var(--font-display); font-size: 30px; color: var(--gold); letter-spacing: 2px; }
+
+/* ============================================================
+   MODE RINGKAS (HP) — reflow panggung 16:9 menjadi 1 kolom
+   ============================================================ */
+html.compact, html.compact body { overflow: auto; height: auto; }
+html.compact { background: linear-gradient(180deg, #070b17 0%, #0b1226 100%); }
+html.compact .stage-frame { position: static; display: block; overflow: visible; background: transparent; }
+html.compact .stage {
+  width: 100%; max-width: 1180px; margin: 0 auto;
+  height: auto; min-height: 100vh;
+  transform: none !important;
+  grid-template-rows: auto; gap: 12px; padding: 12px; border-radius: 0;
+  overflow: visible;
+}
+html.compact .topbar { flex-wrap: wrap; height: auto; padding: 10px 12px; gap: 10px; }
+html.compact .brand-text h1 { font-size: 20px; }
+html.compact .topbar-stats { flex-wrap: wrap; gap: 8px; }
+html.compact .stat-chip { min-width: 84px; padding: 5px 10px; }
+html.compact .topbar-actions { flex-wrap: wrap; gap: 8px; width: 100%; }
+html.compact .stage-main { grid-template-columns: 1fr; }
+html.compact .stage-bottom { grid-template-columns: 1fr; }
+html.compact .moderator-panel { order: 1; }
+html.compact .board-panel { order: 2; }
+html.compact .players-panel { order: 3; }
+html.compact .mini-panel { order: 4; }
+html.compact .mod-grid { grid-template-columns: 1fr; }
+html.compact .moderator-panel.tools-min .mod-grid { grid-template-columns: 1fr; }
+html.compact .tools-card.min, html.compact .mini-panel.min { padding: 14px; }
+html.compact .tools-card.min .tools-body, html.compact .mini-panel.min .mini-board { display: block; }
+html.compact .tools-card.min .ct-text, html.compact .mini-panel.min .panel-head h2 { writing-mode: horizontal-tb; }
+html.compact .tools-card.min .card-title, html.compact .mini-panel.min .panel-head { flex-direction: row; }
+html.compact .mini-toggle { display: none; }
+html.compact .board-grid {
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)) !important;
+  grid-auto-rows: auto !important;
+  gap: 8px !important;
+  overflow: visible; justify-content: stretch; align-content: start;
+}
+html.compact .box { width: 100%; height: auto; aspect-ratio: 1; border-radius: 14px; }
+html.compact .box .box-num { font-size: 22px; }
+html.compact .box .box-secret { font-size: 9px; }
+html.compact .box.done .box-num { font-size: 15px; transform: translateY(-6px); }
+html.compact .box.done .box-check { font-size: 24px; }
+html.compact .box.done .box-pts { font-size: 8px; }
+html.compact .btn { min-height: 42px; }
+html.compact .tbtn { min-height: 44px; }
+html.compact .judge-btns { flex-direction: column; }
+html.compact .judge-btns .btn { width: 100%; }
+html.compact .q-text { font-size: 17px; }
+html.compact .q-answer-wrap p { font-size: 27px; }
+html.compact .timer-wrap { width: 130px; height: 130px; margin: 0 auto; }
+html.compact .timer-text b { font-size: 38px; }
+html.compact .participant-list { max-height: none; }
+html.compact .modal { position: fixed; padding: 12px; }
+html.compact .modal-card { max-height: 92vh; overflow-y: auto; }
+html.compact .sb-scroll, html.compact .table-wrap, html.compact .target-list, html.compact .import-preview { max-height: 55vh; }
+html.compact .judge-popup { position: fixed; }
+html.compact .jp-card { width: min(520px, 92vw); padding: 28px 20px; }
+html.compact .jp-icon { font-size: 60px; }
+html.compact .jp-title { font-size: 40px; letter-spacing: 3px; }
+html.compact .fab { position: fixed; bottom: 14px; right: 14px; }
+html.compact .intro-overlay { position: fixed; }
+html.compact .intro-title { font-size: 44px; }
+html.compact .intro-logo { font-size: 46px; }
+html.compact .setup-grid { grid-template-columns: 1fr; }
+html.compact .setup-brand { font-size: 34px; }
+html.compact .net-presence { grid-template-columns: 1fr; }
+html.compact .be-add { grid-template-columns: 1fr; }
+
+@media (max-width: 900px) {
+  .setup-grid { grid-template-columns: 1fr; }
+  .net-presence { grid-template-columns: 1fr; }
+}
+
+/* Ponsel kecil */
+@media (max-width: 480px) {
+  html.compact .stage { padding: 8px; gap: 8px; }
+  html.compact .board-grid { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)) !important; gap: 6px !important; }
+  html.compact .brand-text h1 { font-size: 17px; }
+  html.compact .brand-text p { display: none; }
+  html.compact .stat-chip { min-width: 70px; padding: 4px 8px; font-size: 10px; }
+  html.compact .q-text { font-size: 16px; }
+  html.compact .q-answer-wrap p { font-size: 23px; }
+  html.compact .intro-title { font-size: 30px; }
+  html.compact .jp-title { font-size: 32px; }
+  html.compact .jp-icon { font-size: 46px; }
+  .setup-brand { font-size: 26px; }
+  .setup-role { padding: 20px 16px; }
+}
+
 </style>
 </head>
 <body>
@@ -755,6 +920,7 @@ kbd { background: rgba(255, 255, 255, .1); border: 1px solid var(--border-strong
         <div class="stat-chip"><span>Soal Tersisa</span><b id="chip-remaining">30</b></div>
         <div class="stat-chip"><span>Soal Selesai</span><b id="chip-done">0</b></div>
         <div class="stat-chip gold"><span>Bank Soal</span><b id="chip-bank">30 soal</b></div>
+        <div class="stat-chip hidden" id="chip-net"><span>Layar Tampilan</span><b id="chip-net-val">0</b></div>
       </div>
 
       <div class="topbar-actions">
@@ -876,6 +1042,8 @@ kbd { background: rgba(255, 255, 255, .1); border: 1px solid var(--border-strong
               <button class="mini-toggle" id="toggle-tools" type="button" title="Perkecil panel">▸</button>
             </div>
             <div class="tools-body">
+              <button class="btn block gold" id="btn-quiz-intro">▶ Mulai Quiz (intro)</button>
+              <button class="btn block" id="btn-net">📡 Hubungkan Layar Tampilan</button>
               <button class="btn block" id="btn-shuffle2">🔀 Acak Posisi Kotak</button>
               <button class="btn block" id="btn-history2">📜 Riwayat Permainan</button>
               <button class="btn block" id="btn-import2">📥 Ganti Bank Soal</button>
@@ -1087,6 +1255,10 @@ kbd { background: rgba(255, 255, 255, .1); border: 1px solid var(--border-strong
             <span>Efek suara saat BENAR / SALAH</span>
           </label>
           <label class="switch big">
+            <input type="checkbox" id="settings-tick-sound" checked />
+            <span>Suara detik (tick-tock) di 10 detik terakhir</span>
+          </label>
+          <label class="switch big">
             <input type="checkbox" id="settings-timer-enabled" checked />
             <span>Aktifkan timer otomatis saat soal dibuka</span>
           </label>
@@ -1152,7 +1324,83 @@ kbd { background: rgba(255, 255, 255, .1); border: 1px solid var(--border-strong
       </div>
     </div>
 
+    <div class="modal" id="modal-net">
+      <div class="modal-backdrop" data-close="modal-net"></div>
+      <div class="modal-card">
+        <h3>📡 Layar Tampilan (Multi-Perangkat)</h3>
+        <p class="modal-sub">Kendalikan dari perangkat ini, lalu tampilkan ke peserta lewat perangkat lain di <b>WiFi yang sama</b>.</p>
+
+        <div class="net-status-row" id="net-status-row">
+          <span class="net-dot" id="net-dot"></span>
+          <span id="net-status-text">Nonaktif</span>
+        </div>
+
+        <div class="net-block">
+          <label>Kode Ruang</label>
+          <div class="net-room" id="net-room">—</div>
+        </div>
+
+        <div class="net-block">
+          <label>Buka di perangkat TAMPILAN</label>
+          <div class="net-url-row">
+            <input type="text" id="net-url" readonly value="" />
+            <button class="btn gold small" id="net-copy" type="button">📋 Salin</button>
+          </div>
+          <p class="muted small">Buka tautan di atas pada laptop/proyektor peserta, atau buka <b>/display</b> lalu masukkan kode ruang.</p>
+        </div>
+
+        <div class="net-presence">
+          <div><b id="net-displays">0</b><span>Layar tampilan</span></div>
+          <div><b id="net-controllers">0</b><span>Perangkat kontrol</span></div>
+          <div><b id="net-host">—</b><span>Alamat server</span></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn ghost" id="net-stop">⏹ Putuskan</button>
+          <button class="btn ghost" id="net-close">Tutup</button>
+          <button class="btn gold" id="net-start">▶ Aktifkan</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast-wrap" id="toast-wrap"></div>
+
+    <!-- ============ INTRO (loading bar) ============ -->
+    <div class="intro-overlay hidden" id="intro-overlay">
+      <div class="intro-inner">
+        <div class="intro-logo">🎯</div>
+        <div class="intro-title">QUIZ SHOW <span>PRO</span></div>
+        <div class="intro-sub" id="intro-sub">Bersiap memulai…</div>
+        <div class="intro-bar"><div class="intro-fill" id="intro-fill"></div></div>
+        <div class="intro-pct" id="intro-pct">0%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETUP (pilih peran perangkat) ============ -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-card">
+    <div class="setup-brand"><span>🎯</span> QUIZ SHOW <b>PRO</b></div>
+    <p class="setup-sub">Pilih peran perangkat ini</p>
+    <div class="setup-grid">
+      <button class="setup-role" data-role="controller" type="button">
+        <span class="sr-icon">🎮</span>
+        <b>Kontrol / Moderator</b>
+        <small>Perangkat ini mengendalikan permainan. Sebuah <b>kode ruang</b> dibuat untuk menyambungkan layar tampilan.</small>
+      </button>
+      <button class="setup-role" data-role="display" type="button">
+        <span class="sr-icon">🖥️</span>
+        <b>Tampilan Peserta</b>
+        <small>Perangkat ini menjadi layar besar untuk peserta (laptop/proyektor) — tanpa tombol kontrol.</small>
+      </button>
+      <button class="setup-role" data-role="local" type="button">
+        <span class="sr-icon">💻</span>
+        <b>Lokal (1 perangkat)</b>
+        <small>Mainkan semuanya di perangkat ini saja, tanpa koneksi tambahan.</small>
+      </button>
+    </div>
+    <p class="setup-note" id="setup-note"></p>
   </div>
 </div>
 
@@ -1481,6 +1729,9 @@ class TimerEngine {
   beginQuestion(sec) {
     if (sec != null) this.totalSec = Math.max(1, Math.round(sec));
     this.usedMs = 0;
+    // Pastikan timer lama benar-benar berhenti dulu, agar reset selalu berlaku.
+    this.running = false;
+    this._cancel();
     this.remainingMs = this.totalMs;
     this.start();
   }
@@ -1619,6 +1870,7 @@ const Store = {
         duration: 30,
         sound: true,
         judgeSound: true,
+        tickSound: true,
         toolsMin: false,
         miniMin: false
       },
@@ -2126,6 +2378,8 @@ const UI = {
   layoutBoard() {
     const grid = $('#board-grid');
     if (!grid) return;
+    // Mode ringkas (HP): ukuran kotak ditentukan CSS (auto-fill), tidak perlu dihitung.
+    if (document.documentElement.classList.contains('compact')) return;
     const n = Store.state.boxes.length;
     if (!n || grid.classList.contains('hidden')) return;
 
@@ -2663,6 +2917,148 @@ const UI = {
 </script>
 <script>
 /* ============================================================
+   net.js — Klien sinkronisasi LAN (Server-Sent Events + POST)
+   Dipakai bersama oleh halaman KONTROL (index.html) dan
+   halaman TAMPILAN (display.html).
+   ============================================================ */
+
+const Net = {
+  role: null,        // 'controller' | 'display'
+  room: null,
+  token: null,
+  enabled: false,
+  status: 'off',     // off | connecting | online | error | local
+  presence: { controllers: 0, displays: 0 },
+  lastState: null,
+
+  _es: null,
+  _pending: null,
+  _pushTimer: null,
+  _retryTimer: null,
+
+  /* callback yang bisa diisi pemanggil */
+  onState: null,     // (snapshot)
+  onPresence: null,  // ({controllers, displays})
+  onStatus: null,    // (status)
+
+  base() {
+    // Bila halaman dibuka dari file:// tidak ada server → nonaktif.
+    return (location.protocol === 'http:' || location.protocol === 'https:') ? '' : null;
+  },
+  available() { return this.base() !== null; },
+
+  _setStatus(s) {
+    if (this.status === s) return;
+    this.status = s;
+    if (this.onStatus) { try { this.onStatus(s); } catch (e) {} }
+  },
+
+  async info() {
+    if (!this.available()) return null;
+    try { const r = await fetch('/api/info', { cache: 'no-store' }); return await r.json(); }
+    catch (e) { return null; }
+  },
+
+  /** Buat ruang baru (hanya perangkat kontrol). */
+  async createRoom() {
+    if (!this.available()) throw new Error('Tidak terhubung ke server.');
+    const r = await fetch('/api/room', { method: 'POST' });
+    if (!r.ok) throw new Error('Gagal membuat ruang.');
+    const j = await r.json();
+    this.room = j.room;
+    this.token = j.token;
+    this.enabled = true;
+    return j;
+  },
+
+  /** Gabung sebagai penonton (hanya lihat) ke ruang yang ada. */
+  joinAsDisplay(room) {
+    this.room = String(room || '').toUpperCase();
+    this.token = null;
+    this.enabled = true;
+    return this.room;
+  },
+
+  connect(role) {
+    if (!this.available()) { this._setStatus('local'); return; }
+    if (!this.room) { this._setStatus('error'); return; }
+    this.role = role;
+    this.enabled = true;
+    this._setStatus('connecting');
+
+    let url = '/api/events?role=' + role + '&room=' + encodeURIComponent(this.room);
+    if (role === 'controller' && this.token) url += '&token=' + encodeURIComponent(this.token);
+    if (this.role === 'display') url += '&t=' + Date.now();
+
+    try {
+      this._es = new EventSource(url);
+    } catch (e) {
+      this._setStatus('error');
+      return;
+    }
+
+    this._es.addEventListener('open', () => this._setStatus('online'));
+    this._es.addEventListener('error', () => {
+      // EventSource otomatis reconnect; tampilkan status
+      this._setStatus(this._es && this._es.readyState === 2 ? 'error' : 'connecting');
+    });
+    this._es.addEventListener('state', ev => {
+      try {
+        const snap = JSON.parse(ev.data);
+        this.lastState = snap;
+        if (this.onState) this.onState(snap);
+      } catch (e) {}
+    });
+    this._es.addEventListener('presence', ev => {
+      try {
+        this.presence = JSON.parse(ev.data);
+        if (this.onPresence) this.onPresence(this.presence);
+      } catch (e) {}
+    });
+  },
+
+  disconnect() {
+    if (this._es) { try { this._es.close(); } catch (e) {} this._es = null; }
+    this._setStatus('off');
+  },
+
+  /**
+   * Kontrol mengirim snapshot keadaan.
+   * @param {object} snap
+   * @param {boolean} immediate kirim segera (jangan ditunda/di-throttle)
+   */
+  push(snap, immediate) {
+    if (!this.enabled || this.role !== 'controller' || !this.room) return;
+    this._pending = snap;
+    if (immediate) return this._flush();
+    if (this._pushTimer) return;           // sudah dijadwalkan → cukup pakai data terbaru
+    this._pushTimer = setTimeout(() => { this._pushTimer = null; this._flush(); }, 180);
+  },
+
+  _flush() {
+    if (!this.room || !this._pending) return;
+    const body = JSON.stringify(this._pending);
+    const url = '/api/state?room=' + encodeURIComponent(this.room) + '&token=' + encodeURIComponent(this.token || '');
+    try {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
+  },
+
+  /** Tautan untuk perangkat tampilan. */
+  displayURL(room) {
+    const r = room || this.room;
+    return location.origin + '/display?room=' + encodeURIComponent(r || '');
+  }
+};
+
+</script>
+<script>
+/* ============================================================
    app.js — Orkestrasi alur permainan, event & kontrol moderator
    ============================================================ */
 
@@ -2735,12 +3131,321 @@ function playJudgeSound(correct) {
   }
 }
 
+/* Suara "detik" (tick-tock) yang menegangkan di detik-detik akhir. */
+let _tickHigh = false;
+function tickBeep(sec) {
+  const st = Store.state.settings;
+  if (!st.sound || st.tickSound === false) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  _tickHigh = !_tickHigh;
+  const urgent = sec <= 3;                 // 3 detik terakhir → lebih tinggi & tegas
+  const freq = urgent ? 1500 : (_tickHigh ? 1180 : 900);
+  const gain = urgent ? 0.34 : 0.26;
+  const t0 = ctx.currentTime + 0.003;
+  // "tik" pendek bergaya jam
+  scheduleTone(ctx, freq, t0, 42, gain, 'square');
+  scheduleTone(ctx, freq / 2, t0, 26, gain * 0.5, 'sine');
+}
+
 function handleBeep(remainingMs, running) {
   if (!running) { _lastWholeSec = null; return; }
   const sec = Math.ceil(remainingMs / 1000);
   if (sec === _lastWholeSec) return;
   _lastWholeSec = sec;
-  if (sec <= 10 && sec > 0) beep(880, 90, 0.2);
+  if (sec <= 10 && sec > 0) tickBeep(sec);
+}
+
+/* ============================================================
+   MULTI-PERANGKAT — membangun snapshot & mengirim ke layar tampilan
+   ============================================================ */
+let lastPopup = null;       // { correct, entry, at }
+let introActive = false;    // sedang memutar efek loading bar?
+let introPct = 0;
+let introLabel = 'Bersiap memulai…';
+
+/** Bangun "snapshot" ringkas dari keadaan permainan untuk layar tampilan. */
+function buildSnapshot() {
+  const s = Store.state;
+  const boxes = {};
+  (s.boxes || []).forEach(b => {
+    boxes[b.n] = { n: b.n, status: b.status, category: b.category, result: b.result || null };
+  });
+
+  const ranking = Store.ranking().map(r => ({
+    id: r.participant.id,
+    name: r.participant.name,
+    score: r.participant.score,
+    correct: r.participant.correct,
+    wrong: r.participant.wrong,
+    rank: r.rank
+  }));
+
+  let current = null;
+  if (s.current) {
+    const c = s.current;
+    const box = Store.boxByNumber(c.boxN);
+    const cat = CATS[c.category];
+    current = {
+      boxN: c.boxN,
+      category: c.category,
+      points: cat ? cat.points : 0,
+      phase: c.phase,
+      mode: c.mode,
+      throwerName: c.throwerName,
+      answererName: c.answererName,
+      questionShown: !!c.questionShown,
+      answerShown: !!c.answerShown,
+      question: box ? box.question : '',
+      answer: box ? box.answer : ''
+    };
+  }
+
+  let phase = 'idle';
+  if (introActive) phase = 'intro';
+  else if (s.current) phase = s.current.phase;
+
+  const done = (s.boxes || []).filter(b => b.status === 'done').length;
+  const total = (s.boxes || []).length;
+
+  return {
+    v: 1,
+    ts: Date.now(),
+    room: Net.room || null,
+    phase: phase,
+    intro: introActive ? { pct: Math.round(introPct), label: introLabel } : null,
+    bankLabel: s.bankLabel,
+    counts: { total: total, done: done, left: Math.max(0, total - done) },
+    boxOrder: (s.boxOrder || []).slice(),
+    boxes: boxes,
+    ranking: ranking,
+    activeId: s.activeId,
+    current: current,
+    timer: {
+      totalMs: timer.totalMs,
+      remainingMs: Math.round(timer.remainingMs),
+      running: timer.running,
+      enabled: !!s.settings.timerEnabled,
+      tick: s.settings.tickSound !== false
+    },
+    popup: lastPopup
+  };
+}
+
+/** Kirim keadaan terbaru ke layar tampilan (bila mode kontrol aktif). */
+function pushState(immediate) {
+  if (typeof Net === 'undefined' || !Net.enabled || Net.role !== 'controller') return;
+  try { Net.push(buildSnapshot(), !!immediate); } catch (e) { /* abaikan */ }
+}
+
+/* Setiap render => sinkronkan. Dibungkus agar tidak perlu mengubah banyak tempat. */
+(function hookRenderers() {
+  if (typeof UI === 'undefined') return;
+  const _renderAll = UI.renderAll.bind(UI);
+  UI.renderAll = function () { _renderAll(); pushState(false); };
+  const _renderMod = UI.renderModerator.bind(UI);
+  UI.renderModerator = function () { _renderMod(); pushState(false); };
+  const _renderTimer = UI.renderTimer.bind(UI);
+  UI.renderTimer = function (a, b, c) { _renderTimer(a, b, c); pushState(false); };
+})();
+
+/* ---------------- Mode ringkas (semua ukuran layar) ----------------
+   Bila panggung 16:9 (1920×1080) akan tampil terlalu kecil untuk
+   dibaca — di ponsel/tablet/layar pendek — pindah ke tata letak
+   1 kolom yang bisa digulir. */
+function isCompact() { return document.documentElement.classList.contains('compact'); }
+
+function applyCompactMode() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const scale = Math.min(w / STAGE_W, h / STAGE_H);
+  const narrow = scale < 0.56 || w < 720 || h < 480;
+  document.documentElement.classList.toggle('compact', narrow);
+  document.body.classList.toggle('compact', narrow);
+  fitStage();
+}
+
+/* ---------------- Efek loading bar "Mulai Quiz" ---------------- */
+let _introTimer = null;
+function startQuizIntro() {
+  if (introActive) return;
+  introActive = true;
+  introPct = 0;
+  introLabel = 'Mempersiapkan papan soal…';
+
+  const ov = $('#intro-overlay');
+  if (ov) ov.classList.remove('hidden');
+
+  Store.state.current = null;
+  Store.save();
+  UI.renderAll();
+  pushState(true);
+
+  const t0 = performance.now();
+  const DUR = 2600;
+
+  const step = () => {
+    const t = Math.min(1, (performance.now() - t0) / DUR);
+    introPct = t * 100;
+    if (t > 0.55) introLabel = 'Mengacak posisi…';
+    if (t > 0.85) introLabel = 'Siap!';
+    const fill = $('#intro-fill'); const pct = $('#intro-pct'); const sub = $('#intro-sub');
+    if (fill) fill.style.width = Math.round(introPct) + '%';
+    if (pct) pct.textContent = Math.round(introPct) + '%';
+    if (sub) sub.textContent = introLabel;
+    pushState(false);
+    if (t >= 1) {
+      clearInterval(_introTimer); _introTimer = null;
+      introActive = false;
+      if (ov) ov.classList.add('hidden');
+      pushState(true);
+      UI.toast('▶ Quiz dimulai! Pilih kotak soal.', 'success', 2600);
+    }
+  };
+  step();
+  _introTimer = setInterval(step, 80);
+}
+
+/* ---------------- Panel & status multi-perangkat ---------------- */
+function setNetStatus(status) {
+  const row = $('#net-status-row');
+  const txt = $('#net-status-text');
+  const dot = $('#net-dot');
+  if (!row) return;
+  row.classList.remove('online', 'connecting', 'error');
+  const map = {
+    off: ['', 'Nonaktif'],
+    local: ['error', 'Butuh server (buka lewat http://…)'],
+    connecting: ['connecting', 'Menyambung ke server…'],
+    online: ['online', 'Terhubung — siap menerima layar tampilan'],
+    error: ['error', 'Koneksi terputus — mencoba lagi…']
+  };
+  const [cls, text] = map[status] || map.off;
+  if (cls) row.classList.add(cls);
+  if (txt) txt.textContent = text;
+  if (dot) dot.style.display = '';
+}
+
+function refreshNetUI() {
+  const room = Net.room;
+  if ($('#net-room')) $('#net-room').textContent = room || '—';
+  if ($('#net-url')) $('#net-url').value = room ? Net.displayURL(room) : '';
+  if ($('#net-start')) $('#net-start').disabled = !!Net.enabled;
+  if ($('#net-stop')) $('#net-stop').disabled = !Net.enabled;
+  const chip = $('#chip-net');
+  if (chip) chip.classList.toggle('hidden', !Net.enabled);
+}
+
+function refreshPresence(p) {
+  if ($('#net-displays')) $('#net-displays').textContent = (p && p.displays) || 0;
+  if ($('#net-controllers')) $('#net-controllers').textContent = (p && p.controllers) || 0;
+  const chipVal = $('#chip-net-val');
+  if (chipVal) chipVal.textContent = (p && p.displays) || 0;
+}
+
+/** Buat (atau pakai ulang) ruang lalu sambung sebagai perangkat kontrol. */
+async function enableNetAsController(opts) {
+  opts = opts || {};
+  if (!Net.available()) {
+    UI.toast('Mode multi-perangkat butuh dibuka lewat server (node server.js).', 'error', 3600);
+    return false;
+  }
+  try {
+    let reuse = null;
+    try { reuse = JSON.parse(localStorage.getItem('quizshowpro_room') || 'null'); } catch (e) { reuse = null; }
+
+    let room = null, token = null;
+    if (reuse && reuse.room && reuse.token) {
+      try {
+        const r = await fetch('/api/health?room=' + encodeURIComponent(reuse.room), { cache: 'no-store' });
+        const j = await r.json();
+        if (j.ok) { room = reuse.room; token = reuse.token; }
+      } catch (e) { /* buat ruang baru */ }
+    }
+    if (!room) {
+      const j = await Net.createRoom();
+      room = j.room; token = j.token;
+    } else {
+      Net.room = room; Net.token = token; Net.enabled = true;
+    }
+    localStorage.setItem('quizshowpro_room', JSON.stringify({ room, token }));
+
+    Net.onStatus = st => { setNetStatus(st); refreshNetUI(); };
+    Net.onPresence = p => { refreshPresence(p); };
+    Net.connect('controller');
+    refreshNetUI();
+    setNetStatus(Net.status);
+    pushState(true);
+    if (!opts.silent) UI.toast('📡 Layar tampilan aktif · Kode ruang <b>' + room + '</b>', 'success', 3600);
+    return true;
+  } catch (e) {
+    UI.toast('Gagal mengaktifkan mode multi-perangkat.', 'error', 3200);
+    return false;
+  }
+}
+
+function disableNet() {
+  Net.disconnect();
+  localStorage.removeItem('quizshowpro_room');
+  setNetStatus('off');
+  refreshNetUI();
+  refreshPresence({ controllers: 0, displays: 0 });
+  UI.toast('⏹ Mode multi-perangkat diputuskan.', 'info');
+}
+
+function openNetModal() {
+  refreshNetUI();
+  setNetStatus(Net.enabled ? Net.status : 'off');
+  UI.openModal('modal-net');
+}
+
+/* ---------------- Pilihan peran di awal (setup) ---------------- */
+function showSetupOverlay() {
+  const ov = $('#setup-overlay');
+  if (!ov) return;
+  ov.classList.remove('hidden');
+
+  const available = Net.available();
+  const note = $('#setup-note');
+  const lastRole = localStorage.getItem('quizshowpro_role');
+
+  ov.querySelectorAll('.setup-role').forEach(btn => {
+    const role = btn.dataset.role;
+    btn.classList.toggle('selected', lastRole === role);
+    if (!available && role !== 'local') {
+      btn.disabled = true;
+    }
+  });
+
+  if (note) {
+    note.classList.toggle('warn', !available);
+    note.innerHTML = available
+      ? 'Semua perangkat harus berada di <b>WiFi yang sama</b>. Perangkat kontrol membuat kode ruang untuk layar tampilan.'
+      : '⚠️ Mode multi-perangkat hanya bisa dipakai bila halaman dibuka lewat server: jalankan <b>node server.js</b> lalu buka <b>http://IP-laptop:8080/</b>. Saat ini hanya mode <b>Lokal</b> yang tersedia.';
+  }
+}
+
+function chooseRole(role) {
+  localStorage.setItem('quizshowpro_role', role);
+  const ov = $('#setup-overlay');
+
+  if (role === 'display') {
+    const room = new URLSearchParams(location.search).get('room') || (Net.room || '');
+    const target = 'display.html' + (room ? '?room=' + encodeURIComponent(room) : '');
+    location.href = target;
+    return;
+  }
+
+  if (ov) ov.classList.add('hidden');
+
+  if (role === 'controller') {
+    enableNetAsController().then(ok => {
+      if (!ok) setNetStatus(Net.available() ? 'off' : 'local');
+    });
+  } else {
+    Net.disconnect();
+    setNetStatus('off');
+  }
 }
 
 /* ---------------- Panggung 16:9 & Fullscreen ---------------- */
@@ -2752,6 +3457,14 @@ function fitStage() {
   const frame = document.getElementById('stage-frame');
   const stage = document.getElementById('stage');
   if (!frame || !stage) return;
+
+  // Mode ringkas (HP): panggung memakai lebar penuh, tanpa transform skala.
+  if (isCompact()) {
+    stage.style.transform = 'none';
+    document.documentElement.style.setProperty('--stage-scale', 1);
+    if (typeof UI !== 'undefined' && UI.layoutBoard) UI.layoutBoard();
+    return;
+  }
 
   const availW = frame.clientWidth || window.innerWidth;
   const availH = frame.clientHeight || window.innerHeight;
@@ -2904,12 +3617,14 @@ function judge(correct, fromTimeup) {
   }
 
   // Popup + efek suara khas
+  lastPopup = { correct: !!correct, entry: e || null, at: Date.now() };
   UI.showJudgePopup(correct, e);
   playJudgeSound(correct);
 
   timer.reset(s.settings.duration);
   UI.renderAll();
   if ($('#modal-scoreboard').classList.contains('open')) UI.renderScoreboard();
+  pushState(true);
 }
 
 function onTimeUp() {
@@ -3195,6 +3910,7 @@ function syncSettingsUI() {
   }
   $('#settings-sound').checked = Store.state.settings.sound;
   $('#settings-judge-sound').checked = Store.state.settings.judgeSound !== false;
+  $('#settings-tick-sound').checked = Store.state.settings.tickSound !== false;
   $('#settings-timer-enabled').checked = Store.state.settings.timerEnabled;
 }
 
@@ -3502,6 +4218,12 @@ function wireEvents() {
     Store.save();
     if (e.target.checked) playJudgeSound(true);
   });
+  $('#settings-tick-sound').addEventListener('change', e => {
+    Store.state.settings.tickSound = e.target.checked;
+    Store.save();
+    if (e.target.checked) tickBeep(5);
+    UI.renderModerator();
+  });
   $('#settings-timer-enabled').addEventListener('change', e => {
     Store.state.settings.timerEnabled = e.target.checked;
     Store.save();
@@ -3566,6 +4288,44 @@ function wireEvents() {
 
   /* Simpan posisi timer saat halaman ditutup */
   window.addEventListener('beforeunload', () => Store.save());
+
+  /* ============ Multi-perangkat (layar tampilan) ============ */
+  $('#btn-net').addEventListener('click', openNetModal);
+  $('#net-start').addEventListener('click', () => enableNetAsController());
+  $('#net-stop').addEventListener('click', disableNet);
+  $('#net-close').addEventListener('click', () => UI.closeModal('modal-net'));
+  $('#net-copy').addEventListener('click', async () => {
+    const url = $('#net-url').value;
+    if (!url) return;
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {
+      try {
+        const inp = $('#net-url');
+        inp.focus(); inp.select();
+        ok = document.execCommand('copy');
+      } catch (e2) { ok = false; }
+    }
+    UI.toast(ok ? '📋 Tautan disalin.' : 'Gagal menyalin — salin manual: ' + url, ok ? 'success' : 'error', 2400);
+  });
+
+  /* ============ Intro loading bar ============ */
+  $('#btn-quiz-intro').addEventListener('click', async () => {
+    if (Store.state.current) {
+      const ok = await confirmDialog('Mulai quiz sekarang? Soal yang sedang berjalan akan ditutup tanpa dinilai.', 'Ya, Mulai Quiz', true);
+      if (!ok) return;
+    }
+    startQuizIntro();
+  });
+
+  /* ============ Setup peran perangkat ============ */
+  $$('#setup-overlay .setup-role').forEach(btn => {
+    btn.addEventListener('click', () => chooseRole(btn.dataset.role));
+  });
+
+  /* ============ Mode ringkas saat layar sempit ============ */
+  applyCompactMode();
+  window.addEventListener('resize', applyCompactMode);
+  window.addEventListener('orientationchange', () => setTimeout(applyCompactMode, 120));
 }
 
 function closeWithCleanup(id) {
@@ -3587,6 +4347,15 @@ function closeWithCleanup(id) {
 
 /* ---------------- Boot ---------------- */
 function init() {
+  /* Tautan tampilan (?room= / ?role=display) → buka halaman layar peserta. */
+  const _params = new URLSearchParams(location.search);
+  const _urlRoom = _params.get('room') || _params.get('r');
+  const _urlRole = _params.get('role');
+  if (_urlRoom || _urlRole === 'display') {
+    location.replace('display.html' + (_urlRoom ? '?room=' + encodeURIComponent(_urlRoom) : ''));
+    return;
+  }
+
   Store.load();
 
   // Jika jumlah kotak tidak cocok dengan bank tersimpan, bangun ulang (bank kosong tetap terkunci).
@@ -3611,6 +4380,14 @@ function init() {
   if (!Store.state.participants.length) {
     UI.toast('👋 Selamat datang! Tambahkan peserta untuk memulai permainan.', 'info', 4000);
   }
+
+  /* Kesiapan mode multi-perangkat */
+  setNetStatus(Net.available() ? 'off' : 'local');
+  refreshNetUI();
+  refreshPresence({ controllers: 0, displays: 0 });
+
+  /* Pilih peran perangkat di awal */
+  showSetupOverlay();
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -37,6 +37,7 @@ const Store = {
         duration: 30,
         sound: true,
         judgeSound: true,
+        tickSound: true,
         toolsMin: false,
         miniMin: false
       },

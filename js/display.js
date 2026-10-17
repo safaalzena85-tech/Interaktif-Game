@@ -43,11 +43,20 @@ function playJudge(correct) {
     });
   }
 }
-function beepTick() { if (soundOn) { const ctx = getCtx(); if (ctx) tone(880, ctx.currentTime + 0.005, 90, 0.22, 'sine'); } }
+function beepTick(sec) {
+  if (!soundOn || !tState.tick) return;
+  const ctx = getCtx(); if (!ctx) return;
+  _tickHigh = !_tickHigh;
+  const urgent = sec <= 3;
+  const f = urgent ? 1500 : (_tickHigh ? 1180 : 900);
+  tone(f, ctx.currentTime + 0.003, 42, urgent ? 0.3 : 0.22, 'square');
+  tone(f / 2, ctx.currentTime + 0.003, 26, urgent ? 0.15 : 0.11, 'sine');
+}
 
 /* ---------------- Timer lokal (interpolasi) ---------------- */
-const tState = { remainingMs: 30000, totalMs: 30000, running: false, enabled: true, at: performance.now() };
+const tState = { remainingMs: 30000, totalMs: 30000, running: false, enabled: true, tick: true, at: performance.now() };
 let _lastBeepSec = null;
+let _tickHigh = false;
 
 function setTimer(t) {
   if (!t) return;
@@ -55,6 +64,7 @@ function setTimer(t) {
   tState.totalMs = t.totalMs || 0;
   tState.running = !!t.running;
   tState.enabled = t.enabled !== false;
+  tState.tick = t.tick !== false;
   tState.at = performance.now();
 }
 function remainNow() {
@@ -84,7 +94,7 @@ function paintTimer() {
   // beep tiap detik di 10 detik terakhir
   if (tState.running && rem > 0) {
     const s = Math.ceil(rem / 1000);
-    if (s !== _lastBeepSec) { _lastBeepSec = s; if (s <= 10) beepTick(); }
+    if (s !== _lastBeepSec) { _lastBeepSec = s; if (s <= 10) beepTick(s); }
   } else {
     _lastBeepSec = null;
   }
