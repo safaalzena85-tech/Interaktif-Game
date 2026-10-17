@@ -17,6 +17,8 @@ const Net = {
   _pending: null,
   _pushTimer: null,
   _retryTimer: null,
+  lanIPs: [],
+  _lanLoaded: false,
 
   /* callback yang bisa diisi pemanggil */
   onState: null,     // (snapshot)
@@ -39,6 +41,32 @@ const Net = {
     if (!this.available()) return null;
     try { const r = await fetch('/api/info', { cache: 'no-store' }); return await r.json(); }
     catch (e) { return null; }
+  },
+
+  /** Ambil daftar IP LAN dari server (sekali saja, lalu di-cache). */
+  async loadLan() {
+    if (this._lanLoaded || !this.available()) return this.lanIPs;
+    this._lanLoaded = true;
+    const j = await this.info();
+    if (j && Array.isArray(j.ips)) this.lanIPs = j.ips.filter(Boolean);
+    return this.lanIPs;
+  },
+
+  /** Host yang bisa diakses perangkat lain. Bila halaman dibuka lewat
+      localhost/127.0.0.1, ganti dengan IP LAN agar tautan bisa dipakai
+      dari HP/tablet di WiFi yang sama. */
+  lanHost() {
+    const h = location.hostname;
+    const isLocal = !h || h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '::1';
+    if (!isLocal) return h;
+    return this.lanIPs[0] || h;
+  },
+
+  /** Alamat dasar (protokol + host + port) yang bisa dipakai perangkat lain. */
+  lanBase() {
+    const port = location.port ? ':' + location.port : '';
+    const proto = (location.protocol === 'http:' || location.protocol === 'https:') ? location.protocol : 'http:';
+    return proto + '//' + this.lanHost() + port;
   },
 
   /** Buat ruang baru (hanya perangkat kontrol). */
@@ -131,9 +159,10 @@ const Net = {
     } catch (e) {}
   },
 
-  /** Tautan untuk perangkat tampilan. */
+  /** Tautan untuk perangkat tampilan (memakai IP LAN agar bisa dibuka
+      dari HP/tablet lain, bukan localhost). */
   displayURL(room) {
     const r = room || this.room;
-    return location.origin + '/display?room=' + encodeURIComponent(r || '');
+    return this.lanBase() + '/display?room=' + encodeURIComponent(r || '');
   }
 };

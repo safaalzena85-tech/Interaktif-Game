@@ -819,6 +819,8 @@ html.compact .stat-chip { min-width: 84px; padding: 5px 10px; }
 html.compact .topbar-actions { flex-wrap: wrap; gap: 8px; width: 100%; }
 html.compact .stage-main { grid-template-columns: 1fr; }
 html.compact .stage-bottom { grid-template-columns: 1fr; }
+html.compact .stage-main > *,
+html.compact .stage-bottom > * { min-width: 0; }
 html.compact .moderator-panel { order: 1; }
 html.compact .board-panel { order: 2; }
 html.compact .players-panel { order: 3; }

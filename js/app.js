@@ -199,7 +199,10 @@ function applyCompactMode() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const scale = Math.min(w / STAGE_W, h / STAGE_H);
-  const narrow = scale < 0.56 || w < 720 || h < 480;
+  // Mode ringkas (1 kolom, bisa digulir) hanya untuk layar ponsel/portrait
+  // yang terlalu kecil untuk panggung 16:9. Jendela landscape (laptop/
+  // proyektor) tetap memakai panggung 16:9 karena selalu muat tanpa gulir.
+  const narrow = w < 720 || (h > w && scale < 0.62) || (h < 480 && w < 1000);
   document.documentElement.classList.toggle('compact', narrow);
   document.body.classList.toggle('compact', narrow);
   fitStage();
@@ -272,6 +275,8 @@ function refreshNetUI() {
   if ($('#net-url')) $('#net-url').value = room ? Net.displayURL(room) : '';
   if ($('#net-start')) $('#net-start').disabled = !!Net.enabled;
   if ($('#net-stop')) $('#net-stop').disabled = !Net.enabled;
+  const host = $('#net-host');
+  if (host) host.textContent = Net.available() ? Net.lanHost() + (location.port ? ':' + location.port : '') : '—';
   const chip = $('#chip-net');
   if (chip) chip.classList.toggle('hidden', !Net.enabled);
 }
@@ -319,7 +324,12 @@ async function enableNetAsController(opts) {
     if (!opts.silent) UI.toast('📡 Layar tampilan aktif · Kode ruang <b>' + room + '</b>', 'success', 3600);
     return true;
   } catch (e) {
-    UI.toast('Gagal mengaktifkan mode multi-perangkat.', 'error', 3200);
+    const addr = Net.available() ? Net.lanHost() + ':' + (location.port || '') : 'server';
+    UI.toast(
+      'Gagal mengaktifkan mode multi-perangkat.<br>' +
+      '<span class="muted">Server ' + addr + ' tidak menjawab. Pastikan <b>node server.js</b> berjalan, ' +
+      'HP &amp; laptop di <b>WiFi yang sama</b>, dan firewall mengizinkan port ' + (location.port || '5173') + '.</span>',
+      'error', 6000);
     return false;
   }
 }
@@ -1325,6 +1335,9 @@ function init() {
   setNetStatus(Net.available() ? 'off' : 'local');
   refreshNetUI();
   refreshPresence({ controllers: 0, displays: 0 });
+  // Ambil IP LAN dari server agar tautan tampilan bisa dibuka dari HP
+  // walau halaman ini dibuka lewat localhost.
+  Net.loadLan().then(() => { refreshNetUI(); });
 
   /* Pilih peran perangkat di awal */
   showSetupOverlay();
